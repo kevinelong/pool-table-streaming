@@ -37,3 +37,9 @@ NOTES.md section 9.
 Several vendor FOV figures contradict their own focal lengths and sensor sizes
 (noted in NOTES.md section 3). Treat all quoted FOV as approximate and measure real
 coverage on the real table before committing to a lens.
+
+## License
+
+Licensed under the **Functional Source License, Version 1.1, MIT Future License**
+(SPDX: `FSL-1.1-MIT`) - see [LICENSE.md](LICENSE.md). Source-available today;
+converts irrevocably to the MIT license on the second anniversary of each release.
