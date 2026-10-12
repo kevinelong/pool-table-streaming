@@ -1,13 +1,13 @@
 # Pool table wireless streaming to OBS - conversation record
 
 Session 2026-10-10 .. 2026-10-12 | model deepseek/deepseek-v4-flash-vision-exp
-Companion: NOTES.md (distilled engineering brief)
+Companion: NOTES.md and RESEARCH.md
 
 NOTE Plain ASCII. Assistant 'thinking' blocks and tool RESULTS are omitted for size;
 tool CALLS are listed with their stated intent. In-body headings are demoted 2 levels so
 the [n] USER / [n] ASSISTANT turn markers stay top-level. Generated from a local session
-log while it was still running, so the closing assistant message is not included.
-Machine-specific paths, usernames and tracking parameters were removed for publication.
+log, so the final assistant message is not included. Machine-specific paths, usernames
+and tracking parameters were removed.
 
 ---
 
@@ -1207,8 +1207,8 @@ save this conversation and your notes here in this folder (micro)
 *(tools used:)*
 - `read`  [(repo root)] - Confirming target folder state
 - `glob`  [~/.omp] - Looking for a session transcript store
-- `glob`  [~/.omp/**/sessions/-micro/*] - Locating the micro session transcript
-- `bash`  [find "~/.omp" -maxdepth 4 -name "*.jsonl" -path "*micro*" -printf "%p  %s b] - Finding session jsonl size
+- `glob`  [(harness path)] - Locating the micro session transcript
+- `bash`  [find "~/.omp" -maxdepth 4 -name "*.jsonl" -path "*micro*" -printf "%p  %s bytes\n" 2>/de] - Finding session jsonl size
 
 ## [50] ASSISTANT
 
@@ -1237,7 +1237,7 @@ Schema confirmed: 21 user turns, 51 assistant text blocks, 92 tool calls. Genera
 Now the notes.
 
 *(tools used:)*
-- `bash`  [cd "(repo root)" && ls -l && echo "--- non-ascii check ---" && for f in CONVERS] - Verifying saved files
+- `bash`  [cd "(repo root)" && ls -l && echo "--- non-ascii check ---" && for f in CONVERSATION.md ] - Verifying saved files
 - `eval` - Regenerating conversation record
 
 ## [54] ASSISTANT
@@ -1281,6 +1281,1053 @@ Counts moved because the session log is live (this is the current session). Chec
 
 Numbering is clean (my check was buggy). Final regeneration with a capture footer.
 
+*(tools used:)*
+- `bash`  [cd "(repo root)" && ls -l && echo "--- non-ascii lines (expect 0) ---" && (grep -cP '[^\] - Verifying final deliverables
+- `bash`  [powershell.exe -NoProfile -File (local helper script) -FilePath (repo root)/NOTES.md] - Opening notes in document viewer
+
+## [60] ASSISTANT
+
+Final verification and opening the documents.
+
+*(tools used:)*
+- `bash`  [powershell.exe -NoProfile -File (local helper script) -FilePath (repo root)/CONVERSATION] - Opening conversation record
+
+## [61] ASSISTANT
+
+Saved to `(repo root)/` - both plain ASCII and opened in the Markdown Viewer.
+
+| File | Size | Contents |
+|---|---|---|
+| **NOTES.md** | 14 KB | Distilled engineering brief, 11 sections: locked requirements, FOV math, verified component specs, platform limits, DIY BOM + Amazon links/prices, retail alternatives, rejected options, open risks, verification plan, quick-reference numbers, source links |
+| **CONVERSATION.md** | 80 KB | Full record: 21 user turns + 59 assistant replies, each tool call listed with its stated intent |
+
+#### How they were made
+
+`CONVERSATION.md` was **generated from the raw session log**, not retyped - so the user turns and my replies are accurate, not paraphrased:
+
+`(session log - not published)` (2.1 MB, the source of truth if you ever want more)
+
+#### Three caveats
+
+1. **Assistant "thinking" blocks and tool *results* are omitted** - the Amazon HTML dumps and datasheet fetches would have added megabytes. Tool *calls* are kept with their intents, so the research trail is still visible.
+2. **The record was captured while the session was still running**, so my final confirmation message isn't in it. The note at the top of the file says so.
+3. **ASCII-transliterated** per your local convention - `x` for multiply, `deg` for degrees, `>=` for the symbols. Prose and numbers are otherwise untouched.
+
+The folder is otherwise empty; no scratch files left behind.
+
+## [22] USER
+
+remember to make sure no api keys are published
+
+*(tools used:)*
+- `eval` - Secret scan of saved files
+
+## [62] ASSISTANT
+
+Good call - let me actually verify rather than assume.
+
+*(tools used:)*
+- `eval` - Credential and repo check
+- `eval` - Full credential scan including raw log
+
+## [63] ASSISTANT
+
+Solid - but let me also cover the master copy, since the saved files are only derivative.
+
+*(tools used:)*
+- `eval` - Masked inspection of key occurrences
+
+## [64] ASSISTANT
+
+`DEEPSEEK_API_KEY` appears 11x in the **raw log** (the saved files are clean). I need to know whether that's just the name from your auto-loaded AGENTS.md or an actual value - inspecting with values masked.
+
+## [65] ASSISTANT
+
+Verified, not assumed. Here's what the scan actually found.
+
+#### Verdict: the saved files are clean
+
+| File | Credential-pattern hits |
+|---|---|
+| `CONVERSATION.md` | **NONE** |
+| `NOTES.md` | **NONE** |
+
+Checked against 12 patterns: `sk-...`, `sk-ant-...`, `AKIA...`, `gh[pusr]_...`, `xox...`, `AIza...`, `Bearer ...`, JWTs (`eyJ...........`), `keyword: value` assignments, URL basic-auth, `-----BEGIN PRIVATE KEY-----`, and the literal `DEEPSEEK_API_KEY`. Plus an entropy sweep over every token >28 chars - all 44 hits were URL paths, repo names, and file paths.
+
+#### The raw session log - worth knowing
+
+The master log (`(harness context file) 2.3 MB) shows 28 hits for `DEEPSEEK_API_KEY`. I inspected every one with values masked:
+
+**All 28 are the variable *name*, never a value** - and most are self-inflicted by this very audit: my scan script's pattern literals (`"DEEPSEEK_API_KEY name": r"DEEPSEEK_API_KEY"`), my thinking blocks, and the auto-loaded `AGENTS.md` context which names the variable without a value. The string is literally inside the pattern I used to search for it.
+
+Four `keyword: value` pattern hits also surfaced. All four classified **not key-shaped** - they're my own regex fragments in the script text, not credentials.
+
+**No environment dump occurred in this session** - no `printenv`, no `echo $VAR`, no `os.environ` access.
+
+#### Two optional hygiene items if you publish this
+
+1. **The Amazon `dib=` token** in `CONVERSATION.md` - from the share URL you pasted (~=300 chars of base64). It's an attribution/search-session blob, **not an API key or account credential**, but it is an opaque token. Stripping the query string keeps the product link fully usable.
+2. **The model slug** `deepseek/deepseek-v4-flash-vision-exp` in the record header. Harmless, but it does disclose which model ran this session.
+
+Say the word and I'll redact either - one edit each, nothing else touched.
+
+#### Structural safeguard
+
+`(repo root)` **is not a git repository** (nor is its parent), so there's no accidental `git push` path for these notes. If you later make it one, add a `.gitignore` before the first commit.
+
+I never handled a credential in this session - every tool call was a public web fetch or a local file operation.
+
+## [23] USER
+
+lets create a public github repo with these notes
+
+*(tools used:)*
+- `read`  [skill://git-workflow-and-versioning] - Reading git workflow skill
+- `bash`  [echo "--- gh ---"; gh --version 2>&1 | head -3; echo "--- gh auth ---"; gh auth status 2] - Checking gh auth and git identity
+- `eval` - Assessing publish exposure
+
+## [66] ASSISTANT
+
+Publishing is irreversible and the record contains workstation detail - so: skill first, then assess exposure, then check tooling.
+
+*(tools used:)*
+- `eval` - Sanitising for publication
+
+## [67] ASSISTANT
+
+Tooling is ready (gh 2.89.0, authed as **kevinelong**, `repo` scope; git identity set). But the scan changes my recommendation: `CONVERSATION.md` carries **44 machine-specific markers** - username, absolute paths, `.omp` internals. `NOTES.md` has 5.
+
+Good news: the security-config discussion never entered the record. Sanitizing now, then publishing.
+
+*(tools used:)*
+- `read`  [(repo root)/NOTES.md:1-14] - Checking sanitised NOTES header
+- `read`  [(repo root)/CONVERSATION.md:1-16] - Checking sanitised conversation header
+
+## [68] ASSISTANT
+
+Sanitiser ran but rule 1 didn't fire - checking what actually remains.
+
+*(tools used:)*
+- `edit`  [(repo root)/CONVERSATION.md] - Cleaning conversation header
+- `edit`  [(repo root)/NOTES.md] - Cleaning notes header
+- `write`  [(repo root)/README.md] - Writing repo README
+- `write`  [(repo root)/.gitignore] - Adding gitignore
+
+## [69] ASSISTANT
+
+Found it - the filename contains `_`, which my char class excluded. Fixing headers directly and adding the repo scaffolding.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && git init -b main -q && git add -A && echo "--- staged ---" && git st] - Initialising repo and committing
+
+## [70] ASSISTANT
+
+Now the git side, with the skill's pre-commit secret check.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && gh repo create pool-table-streaming --public --source=. --remote=ori] - Creating and pushing public repo
+
+## [71] ASSISTANT
+
+One "hit" - a false positive (my `prefs?` pattern matching "*pref*erence"). Commit is in. Creating the public repo.
+
+*(tools used:)*
+- `bash`  [base=https://raw.githubusercontent.com/kevinelong/pool-table-streaming/main
+for f in REA] - Verifying published content is clean
+
+## [72] ASSISTANT
+
+Pushed and public. Now verifying the **published** copy is actually clean - not just the local one.
+
+*(tools used:)*
+- `eval` - Verifying published files
+
+## [73] ASSISTANT
+
+That verification was invalid - `/tmp` doesn't exist here, so `grep` never ran and the "clean" was a false pass from the `||` fallback. Redoing it properly in memory.
+
+## [74] ASSISTANT
+
+Done and verified against the **published** bytes, not the local ones.
+
+####  https://github.com/kevinelong/pool-table-streaming
+
+Public - `main` - 4 files
+
+| File | Size | Contents |
+|---|---|---|
+| `README.md` | 1.9 KB | Entry point: the five headline conclusions, contents table, status |
+| `NOTES.md` | 14 KB | Engineering brief - FOV math, verified specs, platform limits, BOM, retail alternatives, rejected options, risks, verification plan |
+| `CONVERSATION.md` | 78 KB | Full conversation record with tool calls and reasoning trail |
+| `.gitignore` | 133 B | OS/editor cruft |
+
+#### What I redacted before publishing
+
+The exposure scan forced a change of plan - `CONVERSATION.md` carried **44 machine-specific markers**:
+
+- Windows username x11, absolute `~` paths x11, `.omp` session internals x5, local project paths x2
+- The Amazon `dib=` tracking token from your pasted share URL, plus 3 other query-stringed Amazon URLs
+- Internal session UUID and the raw-log path
+
+All replaced with generic placeholders. **Zero technical content was lost** - every number, price, link, and formula is intact. The local files were sanitised in place, so the folder now matches the repo.
+
+The security-config discussion (yolo mode, approval rules) never entered the record - that all happened after the transcript was generated, so nothing like that was ever in scope.
+
+#### Verification
+
+Fetched all three files from `raw.githubusercontent.com` and scanned them: **NONE** of 10 sensitive patterns, **zero** credential shapes.
+
+Worth noting: my first attempt at this returned "clean" - but it was a **false pass**. `/tmp` doesn't exist on this box, so `curl -o` failed and `grep` never ran; the `||` fallback printed the success message. I caught it and redid the check in memory. Treating that as a real verification would have been exactly the wrong call.
+
+#### One exposure left - your call
+
+The commit metadata is public: **`Kevin Ernest Long <kevinelong@gmail.com>`** from your global git config. Normal for a public repo, but if you'd rather not publish the address:
+
+```
+git config user.email "$(gh api user --jq .id)+kevinelong@users.noreply.github.com"
+git commit --amend --reset-author --no-edit
+git push --force-with-lease
+```
+
+I didn't apply it unilaterally - it changes your author attribution, and plenty of people *want* their address on their own repos.
+
+Also available on request: repo **rename** (I picked `pool-table-streaming`), an **MIT license** (none added - no license means all rights reserved by default), and stripping the **model slug** from the headers.
+
+## [24] USER
+
+remember to always use latest FSL licence
+
+*(tools used:)*
+- `web_search`  [Functional Source License latest version FSL-1.1-MIT FSL-1.1-ALv2 fsl.software current] - Checking latest FSL license version
+- `read`  [https://fsl.software/] - Reading FSL canonical site
+
+## [75] ASSISTANT
+
+FSL it is - but I need the *current* version and the canonical text, not a remembered one.
+
+*(tools used:)*
+- `eval` - Fetching FSL-1.1-MIT template
+
+## [76] ASSISTANT
+
+Latest is **FSL-1.1** (the site lists only 1.1 - MIT and ALv2 variants; SPDX agrees). Fetching the canonical template so I reproduce it byte-exact rather than from memory.
+
+*(tools used:)*
+- `eval` - Writing LICENSE.md
+- `edit`  [(repo root)/README.md] - Adding license section to README
+- `read`  [(harness context file)] - Reading AGENTS preferences section
+
+## [77] ASSISTANT
+
+Template fetched (`${year}` / `${licensor name}` placeholders). Writing the license byte-exact plus the wiring.
+
+*(tools used:)*
+- `edit`  [(harness context file)] - Persisting FSL licensing preference
+- `bash`  [cd "(repo root)" && git add -A && git status --short && git commit -q -m "docs: license ] - Committing and pushing license
+
+## [78] ASSISTANT
+
+Note: your AGENTS.md has changed since this session started - it now carries a Git/commit-message house style I'll follow. Adding the FSL rule there too so it persists.
+
+*(tools used:)*
+- `eval` - Verifying published license
+
+## [79] ASSISTANT
+
+Verifying the published license and that GitHub recognises it.
+
+*(tools used:)*
+- `web_search`  [GitHub license detection FSL-1.1-MIT NOASSERTION licensee not recognized Functional Sour] - Checking GitHub FSL detection support
+
+## [80] ASSISTANT
+
+.
+
+## [81] ASSISTANT
+
+Done - and persisted, since you said *always*.
+
+#### Repo updated
+
+**https://github.com/kevinelong/pool-table-streaming** - commit `0291025`
+
+| File | Status |
+|---|---|
+| `LICENSE.md` | **new** - FSL-1.1-MIT, 4,217 bytes |
+| `README.md` | added a License section citing the SPDX ID |
+
+I fetched the **canonical template** from `fsl.software/FSL-1.1-MIT.template.md` and copied it byte-exact rather than reciting it - it's a legal document and a paraphrased license is a broken license. Only the two placeholders were filled: `Copyright 2026 Kevin Ernest Long`.
+
+**Version check:** 1.1 *is* the latest. fsl.software lists exactly two current templates - FSL-1.1-MIT and FSL-1.1-ALv2 - and SPDX has both registered. I chose the **MIT** future license; ALv2 (with an explicit patent grant) is a one-file swap if you prefer.
+
+#### Permanent preference recorded
+
+Added to your always-loaded context at `(harness context file) in *Working preferences and permission reuse*:
+
+> Licensing: for anything published - repos, docs, releases - always use the latest Functional Source License (FSL, https://fsl.software/), currently FSL-1.1, with the license file named LICENSE.md. Default to FSL-1.1-MIT; use FSL-1.1-ALv2 when an explicit patent grant is wanted.
+
+Future sessions will pick this up automatically.
+
+#### Verified against the published file
+
+Fetched `raw.githubusercontent.com/.../LICENSE.md`: correct title, `Copyright 2026 Kevin Ernest Long`, **0 unfilled placeholders**, "Grant of Future License" clause present, ends on the complete MIT warranty paragraph - no truncation.
+
+#### One honest caveat
+
+GitHub reports the license as **`NOASSERTION` / "Other"** rather than `FSL-1.1-MIT`. Its detector (`licensee`) doesn't ship an FSL matcher, so it can't classify it - this is cosmetic, not a defect: the license is SPDX-registered and the `LICENSE.md` text is authoritative. I put `SPDX: FSL-1.1-MIT` in the README so it's machine-readable somewhere.
+
+#### Two things still open from earlier
+
+- The commit author email **`kevinelong@gmail.com`** is public in the commit metadata (fix command sent previously, still unapplied - your call).
+- I noticed `AGENTS.md` changed mid-session (new tek-tube/git policy). I followed its commit style - subject line plus bullets - for the license commit.
+
+## [25] USER
+
+public real email is fine
+
+## [82] ASSISTANT
+
+Understood - leaving the commit author as `Kevin Ernest Long <kevinelong@gmail.com>`. No amend, no force-push. That also means the two commits are final as pushed.
+
+#### Final state
+
+**https://github.com/kevinelong/pool-table-streaming** - public, `main`, two commits
+
+| File | Size |
+|---|---|
+| `README.md` | 2,140 b |
+| `NOTES.md` | 14,066 b |
+| `CONVERSATION.md` | 78,447 b |
+| `LICENSE.md` | 4,217 b - FSL-1.1-MIT |
+| `.gitignore` | 133 b |
+
+**Commits:** `d0c39b2` research + record - `0291025` FSL-1.1-MIT license
+
+Everything's verified against the published bytes - content sanitized, no credentials, license text intact. Nothing outstanding.
+
+Still one command away if you ever want them: repo rename, stripping the model slug from the headers, or swapping to FSL-1.1-ALv2.
+
+## [26] USER
+
+what related research can we do?
+
+*(tools used:)*
+- `ask` - Choosing research tracks
+
+## [83] ASSISTANT
+
+Good moment for it - the build is specified but unbuilt, and several assumptions are still untested. Here's what's genuinely worth researching, ordered by whether it can *change the answer*.
+
+#### 1. Decides the build - no hardware needed
+
+| Question | Why it matters |
+|---|---|
+| **Retail RTSP camera shortlist** with documented **HFOV >= 98deg** | If one exists, it beats the entire DIY build on effort. My survey found most are 65-70deg - a focused shortlist settles it |
+| **Is the RV1106's 2.4 GHz-only WiFi adequate?** | All Luckfox boards are 2.4 GHz WiFi 6. The Ultra W has an **IPEX antenna connector** - worth confirming an external antenna helps, and whether any RV1106 board offers 5 GHz |
+| **OpenIPC on RV1106** - maturity? | A [fork exists](https://github.com/LegionMay/openipc-rv1106). If the OpenIPC stack works, you get a battle-tested low-latency path instead of Luckfox's SDK |
+| **Depth of field / hyperfocal** at 34" for a 2.2 mm f/2 lens | Is the *whole* table sharp, or does one end blur? Pure math, decisive |
+| **Facebook Live eligibility + ingest rules** | The 2024 changes added a 100-follower gate and account-age rules. Cheap to check before you commit to FB-primary |
+
+#### 2. The interesting extension - on-camera AI
+
+The RV1106 has a **1 TOPS NPU**, and Luckfox already ships **YOLOv5 and RetinaFace RKNN examples that stream over RTSP with OSD burned in**. That puts ball detection, shot tracking, and an automatic scoreboard on the *camera* - no PC-side inference, no extra cost. This is the highest-upside research direction and it's already half-built by the vendor.
+
+#### 3. Image quality
+
+- **Fisheye dewarp benchmarking** - ffmpeg `lenscorrection` vs obs-shaderfilter vs a GPU shader. Measure quality loss and CPU/GPU cost at 1080p60.
+- **Lens tradeoff**: 2.2 mm (table fills 65% of frame, ~36 px ball) vs 1.7-1.85 mm (over-covers, worse). Quantify px-per-ball.
+- **Is 60 fps necessary?** Rolling-shutter skew on break shots at 30 vs 60.
+
+#### 4. Broadcast operations
+
+- **Multi-destination** FB + YT simultaneously (`obs-multi-rtmp` vs restream) and its stability.
+- **24/7 reliability** - auto-reconnect, watchdog, headless OBS, recovering from a dropped FB ingest.
+- **FB Graph API automation** - creating broadcasts, rotating stream keys, scheduling.
+
+#### 5. Mechanical, legal, safety
+
+- **Is it code-legal to tap a luminaire** for a USB supply? (NEC). Real question, not a formality - and you already ruled out tapped power if the fixture is on the light switch.
+- **Vibration**: a camera hanging off a chain-shade fixture in a room where balls are struck - image shake?
+- **Glare/shielding**: keeping the tubes out of the lens and off the cloth.
+
+#### 6. Prior art
+
+How existing tournament/competitive pool streams are actually rigged - the "anyone done this already" question, narrowed to *this exact* sport rather than the general wireless-camera field.
+
 ---
 
-END OF RECORD - 21 user turns, 59 assistant replies. Captured 2026-10-12.
+**My recommendation:** start with **#1** - the retail shortlist and the radio question can invalidate or confirm the whole build at zero cost, and both are bounded to a few searches. Everything in #2-#4 presumes the RV1106 path survives.
+
+*(tools used:)*
+- `web_search`  [Reolink camera field of view horizontal degrees 2.8mm lens RTSP ONVIF 2K model specs] - Checking Reolink FOV specs
+- `web_search`  [Tapo C325WB field of view 111 horizontal degrees lens 2K camera RTSP] - Checking wide Tapo models
+- `web_search`  [consumer 360 fisheye IP camera RTSP ONVIF on-board dewarp 5MP price Amcrest Dahua Reolin] - Checking consumer fisheye cameras
+- `web_search`  [IP camera super wide angle 2.5mm lens 110 degree horizontal ONVIF PoE budget RTSP third ] - Checking wide-angle IP cameras
+- `web_search`  [Luckfox Pico Ultra W WiFi module chip AIC8800 RTL8821CS 2.4GHz only antenna IPEX] - Checking Luckfox WiFi hardware
+- `web_search`  [OpenIPC Rockchip RV1106 support status firmware port progress] - Checking OpenIPC Rockchip support
+
+## [84] ASSISTANT
+
+Doing all five. Working directly (no subagents - the workstation forbids a second agent), so this will take several rounds of parallel search. Starting with the two tracks that can kill the build.
+
+*(tools used:)*
+- `web_search`  [Reolink FE-P fisheye 6MP indoor camera field of view price RTSP dewarp] - Checking Reolink fisheye FE-P
+- `web_search`  [Tapo C325WB price Amazon RTSP ONVIF support stream URL 2K outdoor] - Checking Tapo C325WB price/RTSP
+- `web_search`  [Luckfox RV1106 RKNN yolov5 example RTSP OSD rknn_model_zoo support NPU] - Checking RV1106 RKNN examples
+- `web_search`  [RV1106 NPU benchmark yolov5 fps inference performance 0.5 TOPS int8] - Checking RV1106 NPU performance
+- `web_search`  [billiards pool ball tracking overhead camera computer vision detection github project] - Checking billiards tracking projects
+- `web_search`  [OpenIPC firmware RV1106 rockchip install majestic streamer supported boards] - Checking OpenIPC Rockchip install
+
+## [85] ASSISTANT
+
+Strong hits already: **Tapo C325WB is 106deg H** (covers the table at 34"), **Reolink FE-P** is a consumer fisheye with RTSP, the Luckfox WiFi module is confirmed **AIC8800DC (2.4 GHz only)**, and **OpenIPC ships RV1106 board configs**. Continuing.
+
+*(tools used:)*
+- `web_search`  [ffmpeg lenscorrection fisheye dewarp realtime cpu cost obs-shaderfilter undistort plugin] - Checking fisheye dewarp tooling
+- `web_search`  [obs-multi-rtmp plugin multiple destinations Facebook YouTube simultaneous stability 2026] - Checking OBS multi-destination
+- `web_search`  [OBS auto reconnect stream drop recovery 24/7 unattended reliability watchdog headless] - Checking OBS 24/7 reliability
+- `web_search`  [Facebook Graph API live_videos create stream key rotate persistent stream requirements 1] - Checking Facebook Graph API streaming
+- `web_search`  [pool billiards tournament live stream overhead camera setup how streamers rig table] - Checking existing pool stream setups
+- `web_search`  [billiards ball tracking camera frame rate 30fps vs 60fps rolling shutter fast moving bal] - Checking rolling shutter and fps
+
+## [86] ASSISTANT
+
+Track 3 is solved territory - `rockchip-linux/rknpu2` ships an RV1106 YOLOv5 demo, and someone has already deployed **YOLOv8 on the Pico Ultra W specifically**. Final round: tracks 4 and 5.
+
+*(tools used:)*
+- `write`  [(repo root)/RESEARCH.md] - Writing research findings
+
+## [87] ASSISTANT
+
+All five tracks have real answers. Writing them up.
+
+*(tools used:)*
+- `edit`  [(repo root)/README.md] - Linking research from README
+- `edit`  [(repo root)/README.md] - Updating README status
+
+## [88] ASSISTANT
+
+.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && git add -A && git status --short && (git diff --staged | grep -iE "s] - Committing and pushing research
+
+## [89] ASSISTANT
+
+.
+
+*(tools used:)*
+- `eval` - Verifying published research
+
+## [90] ASSISTANT
+
+All five tracks done and published - **`RESEARCH.md`, 204 lines**: https://github.com/kevinelong/pool-table-streaming
+
+#### Headline per track
+
+**1. Retail shortlist** - the finding that matters most: **Tapo C325WB, 106deg horizontal, ~$60-80, RTSP out of the box** -> covers a 78" table from 34" with margin (90.2" of coverage). Reolink's **FE-P/FE-W 6MP fisheye at ~$110** guarantees coverage with dewarping done *on the camera*. The cheap tier's pattern held neatly: everything else is 65-90deg and simply doesn't fit.
+
+**2. Radio + OpenIPC** - Luckfox uses the **AIC8800DC: 2.4 GHz only, confirmed**. Not fatal (you need ~10-15 Mbps; the risk is jitter) and the board has an **IPEX connector** for an external antenna. More interesting: **OpenIPC now ships an RV1106 board config** plus a new **Divinus** multi-platform streamer - a real alternative to the vendor SDK.
+
+**3. On-camera AI** - better than expected. `rockchip-linux/rknpu2` has an **official RV1106 YOLOv5 demo**, and **someone has already deployed YOLOv8 on the Pico Ultra W** (`LdDl/rv1106-yolov8`, INT8). There's even **PoolMind** - a Raspberry Pi pool tracker built around an *overhead camera*. The constraint is the 0.5-1 TOPS NPU, not the software.
+
+**4. Image quality** - I computed the DoF question and it closes: at 34" with a 2.2 mm f/2 lens the near limit is **~13 inches** and the far limit is infinity. **Everything on the table is sharp.** Also: OBS has **no built-in lens correction**, and ffmpeg's `lenscorrection` is CPU-only - so dewarping has a real cost.
+
+**5. Broadcast ops** - two findings worth acting on. **obs-watchdog** auto-restarts a dead stream over WebSocket. And a documented trap: **OBS auto-reconnect is unreliable with Dynamic Bitrate enabled** (issue #6497 closed *not-planned*) - don't enable it on an unattended stream. Facebook adds a **60-day account age and 100-follower gate** before you can go live at all.
+
+**Bonus - commercial prior art.** There's a market for exactly this: **CUE STREAM** advertises a top-down view *plus* end-of-table shot for venues; RackMatch LIVE wires scoring into OBS; overlays.uno sells pool scoreboard overlays. The pattern is proven and the overlay toolchain already exists.
+
+#### What it changes
+
+The retail case got materially stronger, so I changed the recommendation in the README:
+
+- **Buy a ~$70 Tapo C325WB first**, point it down from 34", pull RTSP into OBS. It answers the coverage question with **no lens-mount risk, no dewarping, no NPU budget** - cheaper than board + lens and it arrives assembled.
+- **DIY's only remaining advantage is size.** Nothing cheap is a small board you can tuck into a light shade. That is now the *entire* argument for the RV1106 build.
+
+Repo is at 6 files, 3 commits, still clean (verified on the published bytes - no sensitive markers). The `RESEARCH.md` FSL license and the AGENTS.md preference both carry forward to whatever we add next.
+
+## [27] USER
+
+any user review photos that might answer some of the questions through analysis
+
+*(tools used:)*
+- `eval` - Extracting product photo URLs
+
+## [91] ASSISTANT
+
+Yes - that's a good instinct, and one question is squarely photo-answerable: **the SC3336 lens mount (M12 vs M8)**, which is the single unverified risk in the BOM. Let me pull the product photography and actually look at it.
+
+*(tools used:)*
+- `read`  [https://www.waveshare.com/img/devkit/accBoard/SC3336-3MP-Camera-B/SC3336-3MP-Camera-B-de] - Viewing SC3336 module photo
+- `read`  [https://www.waveshare.com/img/devkit/accBoard/SC3336-3MP-Camera-B/SC3336-3MP-Camera-B-de] - Viewing SC3336 second photo
+
+## [92] ASSISTANT
+
+Product photography found. Let me look at the actual module.
+
+*(tools used:)*
+- `bash`  [echo "--- waveshare image ---"; curl -s -o /dev/null -w "%{http_code} %{content_type} %{] - Checking image URLs
+
+## [93] ASSISTANT
+
+404 - let me check the real paths before wasting more calls.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && mkdir -p .scratch && cd .scratch && for n in 1 3 5; do curl -s -A "M] - Downloading product images
+
+## [94] ASSISTANT
+
+`-o /dev/null` was the culprit - Windows curl doesn't understand it, hence 0 bytes and exit 23. Downloading properly.
+
+*(tools used:)*
+- `read`  [.scratch/scB_1.jpg:img] - Viewing SC3336 front photo
+- `read`  [.scratch/scB_3.jpg:img] - Viewing SC3336 detail photo
+- `read`  [.scratch/scB_1.jpg] - Viewing SC3336 front photo
+
+## [95] ASSISTANT
+
+`:img` is SVG-only - plain images decode by default. Retrying.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)/.scratch" && curl -s -A "Mozilla/5.0" -e "https://www.waveshare.com/" -o] - Downloading dimension drawing
+- `read`  [.scratch/scB_5.jpg] - Viewing SC3336 side view
+
+## [96] ASSISTANT
+
+The module is visible: a black PCB with a **distinct cylindrical lens barrel in a round holder** - not a glued-on fixed lens. Let me get the dimensions and another angle to pin the thread size.
+
+*(tools used:)*
+- `read`  [.scratch/scB_size.jpg] - Viewing SC3336 dimensions
+
+## [97] ASSISTANT
+
+Clearer: the lens is a **distinct barrel in a stepped holder with a locking/knurled ring and a retaining screw** - that reads as a threaded, removable lens, not a glued fixed one. Checking the dimension drawing to size the thread.
+
+*(tools used:)*
+- `edit`  [(repo root)/NOTES.md] - Adding verified module dimensions
+- `edit`  [(repo root)/NOTES.md] - Resolving the lens mount risk
+
+## [98] ASSISTANT
+
+**Decisive.** The dimension drawing answers the BOM's biggest risk outright.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && rm -rf .scratch && echo "scratch removed:" && ls -a && echo "--- sta] - Cleaning up and committing finding
+
+## [99] ASSISTANT
+
+Cleaning up the vendor images (not mine to publish), then committing.
+
+## [100] ASSISTANT
+
+Yes - and it paid off. One clarification on method: what answered it was **official product photography and the vendor's dimension drawing**, not user review photos. That distinction matters, because they answer different questions.
+
+#### Answered by the photo: BOM risk #1
+
+The Waveshare dimension drawing for the SC3336 3MP (B) is annotated. Reading it:
+
+| Dimension | Value |
+|---|---|
+| Board | **25.00 x 24.00 mm** (PCB 1.2 mm) |
+| Mounting holes | 21.00 x 18.00 mm centres |
+| **Lens holder outer diameter** | **14.00 mm** |
+| Lens + holder height | 23.95 mm above the PCB |
+
+**A 14 mm lens holder is the standard M12 (S-mount) size** - M8 would be ~10 mm, M16 ~18 mm. The photography corroborates it: a stepped holder with a knurled focus ring and a retaining screw, matching the "manual focus" spec. That's a threaded, replaceable lens, not a glued fixed one.
+
+**So the 2.2 mm fisheye plan stands**, and I've downgraded risk #1 from *unresolved* to *residual* in `NOTES.md` (commit `ad5e0fa`). What survives: the thread is never stated in writing, and a replacement lens still needs a compatible back focal length to reach focus at 34" - verify by hand on arrival.
+
+Two useful bonuses: the module is **smaller than I'd assumed** (25 x 24 mm - good for tucking into a shade), and the ~24 mm lens+holder stack is the clearance you must find inside the fixture.
+
+Note what the photo did **not** settle: the 98.3deg FOV is printed right on the marketing image, but it still contradicts the 3.95 mm focal length on a 1/2.8" sensor. The **SPEC WARNING stands** - that number needs measuring, not photographing.
+
+#### What review photos are actually good for
+
+| Question | Can a photo answer it? |
+|---|---|
+| Lens mount / thread / replaceability | **Yes** - done, from product photography |
+| Board size, hole spacing, clearance | **Yes** - done |
+| Real-world FOV coverage | **Poorly.** You'd be estimating geometry from a snapshot of unknown distance and lens. Not precise enough for a +/-5deg decision |
+| Mounting approach, bracket ideas | **Yes** - user photos of other people's rigs are genuinely useful |
+| Does a swapped lens reach focus? | **No** - needs the physical part |
+
+So: photos were the right tool for the *mechanical* unknowns and the wrong tool for the *optical* one. The remaining FOV question is settled by the same thing it always was - pointing a camera down from 34" and looking.
+
+I did **not** publish the vendor images - Waveshare's photography is their copyright. Only the measurements went into the repo, and those are facts. I removed the scratch downloads; the repo is still 6 files with nothing stray.
+
+## [28] USER
+
+can we link to their photo pages and use full size copies as photo icon links?
+
+*(tools used:)*
+- `web_search`  [GitHub markdown inline svg tag stripped sanitized not rendered README image file referen] - Checking GitHub inline SVG rendering
+
+## [101] ASSISTANT
+
+Two different questions there, with different answers. Let me verify one technical assumption before I act.
+
+*(tools used:)*
+- `bash`  [echo "=== TEST 1: inline <svg> ==="
+gh api --method POST /markdown -f mode=gfm -f text='] - Testing GitHub markdown SVG handling
+
+## [102] ASSISTANT
+
+Search results are inconclusive. Testing it empirically against GitHub's own markdown renderer instead of guessing.
+
+*(tools used:)*
+- `bash`  [echo "=== TEST 1: inline svg ==="
+gh api --method POST /markdown -f mode=gfm -f text='be] - Testing GitHub SVG rendering raw
+
+## [103] ASSISTANT
+
+`--jq` choked - the endpoint returns HTML, not JSON. Retrying raw.
+
+*(tools used:)*
+- `write`  [(repo root)/sc3336-dimensions.svg] - Authoring original dimension diagram
+
+## [104] ASSISTANT
+
+Empirically settled:
+
+- **Inline `<svg>` in markdown -> stripped.** `before <svg.../> after` rendered as `before  after`.
+- **`![alt](file.svg)` -> renders** as `<img src="...">`.
+
+Now the actual answer to your question - and it splits in two:
+
+| Approach | Verdict |
+|---|---|
+| **Link to their product pages** | **Yes, always fine.** A hyperlink isn't copying |
+| **Copy their full-size photos into the repo** | **No** - see below |
+| Hotlink their image URLs | Avoid: fragile, often hotlink-blocked, and GitHub proxies images through its cache anyway |
+
+The blocker on copying isn't just "copyright" in the abstract - it's specific to **this repo**: it's **FSL-1.1-MIT licensed**, which grants every reader the right to copy, modify and redistribute its contents. We can't grant those rights over Waveshare's photography. Embedding their images would make our own license grant false. Measurements are facts and free to use; their *photographs* aren't.
+
+So let me give you something better - an original diagram, authored from the measurements.
+
+*(tools used:)*
+- `edit`  [(repo root)/NOTES.md] - Adding diagram and source attribution
+- `read`  [sc3336-dimensions.svg:img] - Viewing diagram rendering
+- `eval` - Validating SVG
+
+## [105] ASSISTANT
+
+Verifying the diagram actually renders correctly rather than trusting my coordinates.
+
+*(tools used:)*
+- `write`  [(repo root)/sc3336-dimensions.svg] - Correcting side view proportions
+
+## [106] ASSISTANT
+
+Renders cleanly, but the side view is wrong: the holder (14 mm) should be the *widest* element, and mine is narrower than the barrel. Fixing before it ships.
+
+*(tools used:)*
+- `read`  [sc3336-dimensions.svg:img] - Verifying corrected diagram
+
+## [107] ASSISTANT
+
+.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && git add -A && git status --short && git commit -q -m "docs: add an o] - Committing diagram
+
+## [108] ASSISTANT
+
+Correct now - holder widest, barrel narrower, PCB thin at the base. Committing.
+
+*(tools used:)*
+- `bash`  [echo "=== raw svg served ==="
+curl -s -o "svgcheck.txt" -w "http=%{http_code} type=%{con] - Verifying published SVG
+
+## [109] ASSISTANT
+
+.
+
+## [110] ASSISTANT
+
+Verified end to end. Here's the answer and what I shipped instead.
+
+#### Your question, split in two
+
+| | Verdict |
+|---|---|
+| **Link to their product pages** | **Yes** - always fine. A hyperlink isn't copying. Now linked from `NOTES.md` |
+| **Copy their full-size photos into the repo** | **No** |
+| Hotlink their image URLs | Avoid - fragile, commonly hotlink-blocked, and GitHub proxies images through its cache anyway |
+
+The blocker is specific to *this* repo: it's **FSL-1.1-MIT licensed**, which grants every reader the right to copy, modify and redistribute its contents. We can't extend that grant to Waveshare's photography. Measurements are facts and free to use; **photographs are not**. Embedding them would make our own license grant false.
+
+#### What I shipped instead
+
+An **original diagram** authored from the measured figures - `sc3336-dimensions.svg`, embedded in `NOTES.md` with the vendor pages linked as provenance. Top view (board outline, hole pattern, 14 mm holder) and side view (the 23.95 mm stack over a 1.2 mm PCB).
+
+**I settled the inline-SVG question empirically rather than guessing** - GitHub has a markdown-rendering API, so I tested it:
+
+```
+before <svg .../> after   ->   <p>before  after</p>          (stripped)
+![alt](file.svg)        ->   <p><a ...><img src="file.svg">  (renders)
+```
+
+That's why the diagram ships as a **separate `.svg` referenced as an image** rather than inline markup - inline would have silently vanished.
+
+**And I checked the drawing rather than trusting my coordinates.** First render had the side view inverted - I'd drawn the barrel wider than the holder, when the 14 mm holder is actually the widest element. Caught it by rendering the SVG and looking at it, fixed it, re-rendered. Also confirmed the published file serves as `image/svg+xml` (200, 1,963 bytes) and that GitHub's renderer emits the `<img>` tag.
+
+Repo: **7 files**, commit `fd43799`.
+
+#### The genuinely better route to real photos
+
+Once the hardware arrives, **photograph the actual board yourself** - those images are yours, they'd document *your* unit (real lens thread, real connector, real tolerances), and they'd be more useful than vendor marketing shots. That's the clean path to photos in the repo, and I'd rather wait for it than borrow Waveshare's.
+
+## [29] USER
+
+lets do it temporarily until we can make our own later
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && mkdir -p images && cd images && base="https://www.waveshare.com/img/] - Downloading vendor images
+
+## [111] ASSISTANT
+
+Understood - executing, with one thing I'll add that makes it legally coherent rather than just *temporary*.
+
+The risk I flagged wasn't hypothetical: with the images in and no carve-out, the repo's FSL grant becomes **false** - it would appear to license Waveshare's photos to every reader. Fixing that costs one paragraph. Re-downloading the images now.
+
+*(tools used:)*
+- `edit`  [(repo root)/NOTES.md] - Embedding vendor images in notes
+- `edit`  [(repo root)/README.md] - Adding licence carve-out to README
+
+## [112] ASSISTANT
+
+Three valid JPEGs (960px wide). Wiring them in, with the licence carve-out.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && git add -A && git status --short && git commit -q -m "docs: add vend] - Committing images and verifying
+
+## [113] ASSISTANT
+
+.
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && curl -s -o imgcheck.jpg -w "http=%{http_code} type=%{content_type} b] - Verifying images render
+
+## [114] ASSISTANT
+
+Two checks didn't complete - `-o /dev/null` again (Windows curl doesn't understand it), which broke the `&&` chain. Redoing.
+
+## [115] ASSISTANT
+
+Done - images live, and the licence now tells the truth.
+
+#### Repo state
+
+**https://github.com/kevinelong/pool-table-streaming** - commit `35a928c`
+
+```
+images/sc3336-b-front.jpg        217 KB  960x1375
+images/sc3336-b-angled.jpg       104 KB  960x700
+images/sc3336-b-dimensions.jpg   106 KB  960x520
+```
+
+Embedded in `NOTES.md` right beside the mechanical findings they support (front view, angled view showing the lens barrel and holder, and the dimension drawing that the measurements came from), with attribution and a link to the source product page.
+
+#### The one thing I added
+
+A **`## Third-party images`** section in the README:
+
+> **They are not covered by this repository's FSL-1.1-MIT license.** Copyright in those files remains with Waveshare; the FSL grant applies only to our own text and to `sc3336-dimensions.svg`.
+
+Without that sentence the repo would claim to license Waveshare's photography to every reader - a false grant, and the kind of thing that gets a repo a takedown rather than a polite email. One paragraph fixes it, and it's the standard way to ship third-party assets alongside an open licence. Marked as placeholders, to be swapped for our own photos when the hardware lands.
+
+#### Verified against the published copy
+
+- `images/sc3336-b-front.jpg` -> **http 200, image/jpeg, 217,707 bytes**, valid JPEG 960x1375
+- GitHub's renderer emits `<img src="images/sc3336-b-front.jpg">` and `<img src="sc3336-dimensions.svg">` - both will actually display
+
+(Twice now I've written `curl -o /dev/null` in a `&&` chain and twice it's silently broken the rest of the command - Windows `curl.exe` doesn't understand POSIX paths. Worth remembering.)
+
+#### One tradeoff worth knowing
+
+The repo went from ~150 KB to ~580 KB - the images are ~4x everything else combined. They're 960 px wide, which is more than a README needs. Say the word and I'll downscale to ~640 px, which would cut it to roughly a third with no visible loss at display size.
+
+## [30] USER
+
+thats fine. open the repo url in a new local browser
+
+*(tools used:)*
+- `read`  [xd://eval/browser] - Reading browser tool docs
+- `eval` - Opening repo in browser
+- `eval` - Retrying browser open
+
+## [116] ASSISTANT
+
+First open timed out - managed Chromium may have been installing. Retrying with a longer budget.
+
+*(tools used:)*
+- `bash`  [omp ps 2>&1 | head -30; echo "--- browser daemon dirs ---"; ls -d "(harness path) 2>/dev] - Diagnosing browser daemon
+- `bash`  [powershell.exe -NoProfile -Command "Start-Process 'https://github.com/kevinelong/pool-ta] - Opening repo in default browser
+
+## [117] ASSISTANT
+
+Browser daemon is down. Diagnosing and falling back to your system browser.
+
+*(tools used:)*
+- `bash`  [echo "=== browser processes ==="; tasklist 2>/dev/null | grep -iE "^(chrome|msedge|firef] - Verifying browser launch
+
+## [118] ASSISTANT
+
+URL launched (exit 0). Verifying a browser is actually up, and getting the precise daemon failure.
+
+*(tools used:)*
+- `bash`  [powershell.exe -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"name='chrome] - Confirming URL reached Chrome
+- `bash`  [cd "(harness path) && grep -l -i "browser" *.log 2>/dev/null | head -5; echo "--- matche] - Searching logs for browser cause
+
+## [119] ASSISTANT
+
+No URL in any Chrome command line - expected if Chrome was already running (a new tab goes through the existing process). Checking the logs for the real cause of the daemon failure.
+
+*(tools used:)*
+- `bash`  [echo "=== ms-playwright contents ==="; ls -1 "(Playwright browser cache) 2>/dev/null | h] - Checking Playwright chromium install
+
+## [120] ASSISTANT
+
+`ms-playwright` cache exists, so Chromium may be installed - worth one more look to give you an accurate cause.
+
+## [121] ASSISTANT
+
+Opened in your default browser. Here's what I confirmed and what I couldn't.
+
+#### Done
+
+`https://github.com/kevinelong/pool-table-streaming` -> launched via the OS default handler (`Start-Process`, exit 0). Chrome is running.
+
+**Caveat on verification:** I could not confirm the specific *tab*. No `chrome.exe` command line carries the URL - which is expected if Chrome was already running, since a new tab is handed to the existing process over IPC. The automation browser would have let me enumerate tabs and screenshot the page, but it's down.
+
+#### The automation path failed - and it's a broker problem, not a browser problem
+
+```
+browser.open(...) -> Browser open timed out after 60000ms
+                   -> Shared browser daemon unavailable
+                     (broker start or Chromium launch failed)
+```
+
+Digging into `(harness path) the same root cause hits something unrelated:
+
+```
+text-predict: daemon unavailable; word completion paused
+error: Failed to start daemon broker at \\.\pipe\omp-...
+```
+
+So the **daemon broker's Windows named pipe isn't starting**, and that takes both the browser daemon and text-prediction with it. It's a harness/environment fault, not a missing dependency:
+
+- **Chromium is installed** - `(Playwright browser cache) (and `-1228`)
+- `omp ps` shows only a broker pid with **no processes**; there are no `omp.browser.*` daemon dirs
+
+That's why I fell back to the OS handler rather than looping on retries.
+
+#### Worth a look when the page loads
+
+The repo is now 8 entries - the three vendor photos should render inline in `NOTES.md` beside the mechanical findings, with the dimension drawing (`960x520`) above the measurements it produced, plus our own SVG diagram. The README's **Third-party images** section is where the licence carve-out lives.
+
+If you want the automation browser working - useful for screenshotting the rendered page and verifying that the images and diagram actually display on GitHub rather than just parsing as valid HTML - say so and I'll dig into the broker/named-pipe failure. That's the one part of this repo I've verified only at the HTML level, never visually.
+
+## [31] USER
+
+open latest readme in browser
+
+*(tools used:)*
+- `bash`  [cd "(repo root)" && curl -s -o rcheck.md -w "remote README: http=%{http_code} bytes=%{si] - Confirming remote README is latest
+- `bash`  [powershell.exe -NoProfile -Command "Start-Process 'https://github.com/kevinelong/pool-ta] - Opening README in browser
+
+## [122] ASSISTANT
+
+Opened: **https://github.com/kevinelong/pool-table-streaming/blob/main/README.md**
+
+Verified it's the *latest* before opening, rather than assuming:
+
+| Check | Result |
+|---|---|
+| Remote README | 200, **3,110 bytes** |
+| Local README | **3,110 bytes** - identical |
+| Contains `Third-party images` section | yes |
+| Last commit touching README | `35a928c` |
+
+The `blob/` URL renders the markdown; `/raw/` would have given you plain text.
+
+Used the OS handler again - the omp browser daemon is still down, so I can't screenshot the rendered page to confirm the formatting displays as intended. What you'll be looking at on that page:
+
+- **The short version** - five bullets, including the 98deg HFOV requirement and why no MCU can do this
+- **Contents** - links out to `NOTES.md` (where the three vendor photos and our SVG diagram are embedded), `RESEARCH.md`, and the conversation record
+- **Status** - updated to the retail-first next step (the ~$70 Tapo C325WB)
+- **Third-party images** - the licence carve-out
+
+If the images don't render in `NOTES.md` when you click through, tell me - I verified GitHub's HTML output but never saw the page painted.
+
+## [32] USER
+
+tapo option stream directly to obs? how is it powered? battery option? how long?
+
+*(tools used:)*
+- `web_search`  [Tapo C325WB power adapter specification DC voltage power consumption watts datasheet] - Checking Tapo C325WB power specs
+- `web_search`  [Tapo C325WB RTSP stream OBS media source setup camera account enable] - Checking Tapo RTSP to OBS
+- `web_search`  [Tapo battery powered camera RTSP ONVIF not supported battery models list] - Checking Tapo battery model limits
+
+## [123] ASSISTANT
+
+Good questions - the battery answer is the one that matters most, because it's the one that breaks the plan. Verifying.
+
+## [124] ASSISTANT
+
+Four answers, and the battery one is a dead end - for a specific documented reason.
+
+#### 1. Direct to OBS? Yes, over RTSP
+
+The C325WB's own spec sheet lists **RTSP: Yes, ONVIF: Yes**.
+
+| | |
+|---|---|
+| RTSP port | 554 (ONVIF on 2020) |
+| URL | `rtsp://<cam-ip>/stream1` (main) - `/stream2` (sub) |
+| Credentials | a **Tapo Camera Account** - created separately from your Tapo cloud login, and it's what you put in the URL |
+| In OBS | **Media Source** -> uncheck *Local File* -> paste the RTSP URL (not a native plugin) |
+
+Caveat worth knowing: OBS's Media Source is a thin ffmpeg wrapper, and RTSP reconnection has historically been its weak point. If you hit drops, put **MediaMTX** in the middle and point OBS at that - same architecture as the DIY path.
+
+#### 2. Power: 9 V DC, and **PoE on v2**
+
+| Version | Power |
+|---|---|
+| C325WB **v1.0** | **9 V DC adapter** only - 100-240 V in, **9 V / 0.6 A** out, barrel connector |
+| C325WB **v2.x** | **DC / PoE** - datasheets for 2.0/2.6/2.8 list PoE, and there's a 10/100 RJ45 on the camera |
+
+Max draw is **5.4 W** (9 V x 0.6 A) - that's the adapter's rating, so real draw is lower. **PoE is the sleeper finding here**: one Ethernet cable carries power *and* data, which for your light-fixture mount might beat both battery and a mains tap. But it's a cable, so it's not wireless.
+
+#### 3. Battery: **no - and it breaks OBS entirely**
+
+This is the part that matters. TP-Link's own FAQ, verbatim:
+
+> Most Tapo cameras (**excluding battery-powered models**) support the RTSP and ONVIF (Profile S) protocols.
+
+So **every battery-powered Tapo drops RTSP.** A battery Tapo cannot feed OBS *at all* - not degraded, structurally impossible. There's no battery option for the C325WB, and no battery Tapo that does RTSP.
+
+If you want battery *and* RTSP, you're back to the DIY RV1106 build - which is what it was good at.
+
+#### 4. Runtime
+
+**Not applicable** - it's a mains camera. If you insist, the only route is a **USB-C PD -> 9 V trigger cable** into a power bank. `[INFERENCE]` - I have no measured draw:
+
+| Bank | @3 W | @4 W | @5.4 W |
+|---|---|---|---|
+| 48 Wh (Voltaic V50) | ~14 h | ~10 h | ~7.8 h |
+
+Assumes ~88% PD conversion. Plausible for a day, but you'd be powering a surveillance camera outside its design envelope, on a barrel connector you have to match exactly.
+
+#### Two things I'd want you to know before buying
+
+**1. There's a security advisory on this exact camera.** TP-Link published one roughly four days ago - CVE-2026-105672/673/674, including an **unauthenticated RTSP denial-of-service** on v2. Attack vector is adjacent-network (`AV:A`), so it needs someone on your LAN. It reinforces two things: **update firmware on arrival**, and don't put it on a network with untrusted devices.
+
+**2. This flips the recommendation again.** If battery is a real requirement, the Tapo is out and the RV1106 build is back on - its whole advantage was operating at ~1 W. **Is the camera going to have mains power available at the fixture, or not?** That single answer picks the entire architecture, and it's the same question I asked about the DIY power tap.
+
+## [33] USER
+
+direct obs is paramount
+
+*(tools used:)*
+- `web_search`  [OBS Media Source RTSP stream drops reconnect stability network buffering settings 2026] - Checking OBS RTSP media source reliability
+- `web_search`  [Tapo camera RTSP concurrent connections limit one client stream drops when second client] - Checking Tapo RTSP limits
+
+## [125] ASSISTANT
+
+"Direct to OBS" as the top-line criterion is a real constraint with a gotcha worth checking, since it makes OBS's own RTSP handling load-bearing.
+
+## [126] ASSISTANT
+
+Then I have to tell you something uncomfortable: **"direct to OBS" makes OBS's own RTSP client the critical path - and that is the weakest link in OBS.**
+
+#### The evidence
+
+| Issue | State |
+|---|---|
+| [**#12958** RTSP stream re-connection not happening](https://github.com/obsproject/obs-studio/issues/12958) | **OPEN** - filed Dec 2025, last updated Aug 2026, unfixed |
+| [#11537](https://github.com/obsproject/obs-studio/issues/11537) Media source hangs (RTSP), but OBS is unaware | source silently stops producing frames; you must toggle a property to restart it |
+| [#13506](https://github.com/obsproject/obs-studio/issues/13506) SRT listener can't recreate its socket | open |
+
+So a direct `rtsp://` Media Source will sometimes die and **not come back on its own**. That's not a Tapo problem or an RV1106 problem - it's an OBS problem, and it applies equally to both.
+
+Tapo-specific noise on top of that: users [reporting unstable RTSP](https://github.com/blakeblackshear/frigate/discussions/24034) on Tapo models, and a [community report that subscribing to Tapo Care breaks the RTSP stream](https://community.tp-link.com/en/smart-home/forum/topic/662024?moduleId=613).
+
+#### The three genuinely direct paths, ranked by how well OBS handles them
+
+| Protocol | OBS support | Intermediary | Verdict |
+|---|---|---|---|
+| **NDI** | [`DistroAV` plugin](https://github.com/DistroAV/DistroAV) - first-class, designed for live production | **none** | **Most robust direct path** |
+| **SRT push** | Media Source as *caller* | none | Usable; listener mode is buggy |
+| **RTSP pull** | Media Source (ffmpeg) | none | Most universal, **least reliable** |
+
+RTMP is out - OBS has no RTMP *input*. WHIP is out - output-only.
+
+#### What this does to the ranking
+
+**RTSP-into-Media-Source is the cheapest direct path and the flakiest.** Both the $70 Tapo and the $199 RV1106 sit on it, so on pure OBS-reliability they're equal - and both need a workaround.
+
+**NDI is the only truly direct *and* robust route** - and that's the Mevo Core. It's the one option where "direct to OBS" doesn't cost you reliability. ~$700-950 is what that costs.
+
+So "direct is paramount" splits three ways:
+
+1. **Paramount = direct + bulletproof** -> **Mevo Core** (native NDI -> DistroAV). Nothing else is both.
+2. **Paramount = direct + affordable + battery-capable** -> **RV1106**. Direct RTSP now, and it can push SRT later; ~1 W, so a bank runs it. This is the only battery option that still feeds OBS.
+3. **Paramount = direct + cheapest** -> **Tapo C325WB**. ~$70, direct RTSP, mains only, and you accept the reconnect risk.
+
+#### The price of choosing "direct"
+
+If you go route 2 or 3, you must add a **watchdog that restarts the media source on stall**, because OBS won't. `obs-watchdog` restarts the *stream*; for the *source* you'd need a small script toggling the source's visibility/URL when `tab`-level frame health drops. That's the tax on avoiding MediaMTX.
+
+MediaMTX exists precisely to absorb this - it reconnects and OBS sees a stable local feed. You rejected the hop, so this is the tradeoff you're buying.
+
+#### What I still need
+
+Two things, and they're now the only open questions:
+
+1. **Budget ceiling** - $70, $200, or $700? That single number picks the row above.
+2. **Mains at the fixture, yes or no?** If no, options 1 and 3 are both disqualified and the RV1106 is the only survivor.
+
+## [34] USER
+
+save state for restart
+
+*(tools used:)*
+- `edit`  [(repo root)/.gitignore] - Excluding working state from public repo
+- `write`  [(repo root)/RESUME.md] - Writing resume state file
+
+## [127] ASSISTANT
+
+Saving state. It goes in the project folder but **not** in the public repo - working notes and open budget/decision items don't belong in a published artifact.
+
+*(tools used:)*
+- `eval` - Refreshing conversation record
+
+## [128] ASSISTANT
+
+Now refreshing the published transcript so it isn't stale (it currently stops ~30 turns back).
+
+*(tools used:)*
+- `eval` - Regenerating with full sanitisation
+
+## [129] ASSISTANT
+
+The sanitiser missed the **tool-call lines** - every remaining hit is inside `- \`read\` [~/...]`. Fixing and re-running.
+
+*(tools used:)*
+- `eval` - Final transcript sanitisation
+
+## [130] ASSISTANT
+
+Down to the intentional ones (the public copyright name/email) plus a few path fragments. Tightening once more.
+
+*(tools used:)*
+- `eval` - Corrected sanitisation ordering
+
+## [131] ASSISTANT
+
+Rule-ordering bug - the `~`-prefixed rules ran *before* the `C:/Users` ones that create them. Reordering.
+
+---
+
+END OF RECORD - 34 user turns, 131 assistant replies.

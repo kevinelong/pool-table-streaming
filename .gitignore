@@ -12,3 +12,6 @@ desktop.ini
 *.log
 *.tmp
 scratch/
+
+# Local working state - deliberately NOT published
+RESUME.md
