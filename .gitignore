@@ -1,0 +1,14 @@
+# OS cruft
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor / office temp files
+~$*
+*.swp
+*~
+
+# Logs and local scratch
+*.log
+*.tmp
+scratch/
