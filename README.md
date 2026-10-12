@@ -24,13 +24,17 @@ Research notes on streaming a **7-foot pool table** overhead into **OBS**, and o
 | File | What it is |
 |---|---|
 | [NOTES.md](NOTES.md) | The engineering brief: FOV math, verified component specs, platform limits, BOM with prices, retail alternatives, rejected options, risks, verification plan |
+| [RESEARCH.md](RESEARCH.md) | Follow-on research: retail camera shortlist, RV1106 radio and OpenIPC, on-camera AI, dewarping, broadcast ops, commercial prior art |
 | [CONVERSATION.md](CONVERSATION.md) | The full conversation record, including the tool calls and the reasoning trail |
 
 ## Status
 
-Research and specification only. **No hardware purchased.** The decisive next step is
-one ~$79 order (board + camera) and a tape measure - see the verification plan in
-NOTES.md section 9.
+Research and specification only. **No hardware purchased.** The cheapest decisive
+next step is now a **~$70 Tapo C325WB** (106 deg horizontal) aimed down from 34 in
+and pulled into OBS over RTSP - it answers the coverage question with no assembly
+risk and no unverified lens mount. The DIY board + camera build remains the option
+if the camera must be small enough to hang on the light fixture. Details in
+[RESEARCH.md](RESEARCH.md) section 1.
 
 ## Caveat on the numbers
 
