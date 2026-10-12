@@ -47,3 +47,16 @@ coverage on the real table before committing to a lens.
 Licensed under the **Functional Source License, Version 1.1, MIT Future License**
 (SPDX: `FSL-1.1-MIT`) - see [LICENSE.md](LICENSE.md). Source-available today;
 converts irrevocably to the MIT license on the second anniversary of each release.
+
+## Third-party images
+
+`images/sc3336-b-*.jpg` are product photographs and a dimension drawing from
+**Waveshare**, reproduced **temporarily** as illustrative reference for the
+SC3336 camera module, with attribution and a link to the source product page.
+
+**They are not covered by this repository's FSL-1.1-MIT license.** Copyright in
+those files remains with Waveshare; the FSL grant applies only to our own text and
+to `sc3336-dimensions.svg`.
+
+They are placeholders, and will be replaced with photographs of our own hardware
+once it is in hand.
