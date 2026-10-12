@@ -102,6 +102,14 @@ the frame).
 manual focus) - they differ by FPC/connector and board pairing. Luckfox lists
 **(B) for Ultra and Mini**, **(A) for Pro/Max**.
 
+**SC3336 (B) mechanicals** - read off the vendor dimension drawing on 2026-10-12:
+board **25.00 x 24.00 mm**, PCB 1.2 mm thick, mounting holes on **21.00 x 18.00 mm**
+centres, **lens holder outer diameter 14.00 mm**, total lens + holder height
+**23.95 mm** above the PCB. A 14 mm holder is the standard **M12 (S-mount)** size
+(M8 would be ~10 mm, M16 ~18 mm), and the lens sits in a stepped holder with a
+knurled focus ring and a retaining screw - consistent with the stated "manual
+focus".
+
 **SPEC WARNING:** Luckfox's focal lengths and FOV figures **contradict each
 other**. 3.95 mm on a 6.43 mm-diagonal sensor is geometrically ~78 deg diagonal,
 yet 98 deg is published; the H/V columns are not internally consistent with 16:9
@@ -240,10 +248,16 @@ with native NDI/SRT into OBS.
 
 ## 8. Open risks / unverified
 
-1. **SC3336 lens mount: M12 vs M8.** Unverified - "manual focus" implies a
-   threaded barrel, but not confirmed. This is **the biggest risk in the BOM**:
-   a $47 lens is scrap on the wrong thread. **Buy the camera first, inspect the
-   mount, then order the lens.**
+1. ~~**SC3336 lens mount: M12 vs M8.**~~ **RESOLVED 2026-10-12, by inspection of
+   the vendor dimension drawing** (measurements in section 3). The lens holder
+   outer diameter is **14.00 mm**, which is the standard **M12 (S-mount)** size -
+   M8 would be ~10 mm and M16 ~18 mm. The lens sits in a stepped holder with a
+   knurled focus ring and a retaining screw, matching the "manual focus" spec.
+   **Stock M12 micro-lenses should fit, so the 2.2 mm fisheye plan stands.**
+   Residual risk is reduced but not eliminated: the thread is not stated in
+   writing anywhere, and a replacement lens still needs a compatible back focal
+   length to reach focus at 34 in. Verify by hand on arrival before ordering the
+   lens.
 2. **Fixtures on the wall switch.** If the light switch controls the fixture,
    tapping its power kills the camera whenever the lights go off. Never tap a
    dimmed circuit.
