@@ -110,6 +110,17 @@ centres, **lens holder outer diameter 14.00 mm**, total lens + holder height
 knurled focus ring and a retaining screw - consistent with the stated "manual
 focus".
 
+![SC3336 module measured dimensions](sc3336-dimensions.svg)
+
+*Source for these figures: the vendor dimension drawing on the Waveshare product
+page for the [SC3336 3MP Camera (B)](https://www.waveshare.com/product/luckfox/cameras/3mp-cameras/sc3336-3mp-camera-b.htm)
+and [SC3336 3MP Camera (A)](https://www.waveshare.com/sc3336-3mp-camera-a.htm).
+The diagram above is our own drawing made from those numbers. The vendor's
+photographs and drawings are their copyright and are deliberately **not**
+redistributed in this repo - we link to them instead. Measurements are facts and
+free to use; photographs are not, and this repo's own licence cannot grant rights
+over third-party images.*
+
 **SPEC WARNING:** Luckfox's focal lengths and FOV figures **contradict each
 other**. 3.95 mm on a 6.43 mm-diagonal sensor is geometrically ~78 deg diagonal,
 yet 98 deg is published; the H/V columns are not internally consistent with 16:9

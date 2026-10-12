@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 250" width="580" height="250" role="img" aria-label="SC3336 camera module measured dimensions">
+  <title>SC3336 3MP Camera (B) - measured module dimensions</title>
+  <desc>Top view and side view of the 25.00 by 24.00 mm camera board with a 14.00 mm lens holder.</desc>
+
+  <g stroke="#6e7681" fill="none" stroke-width="1.2">
+    <rect x="30" y="70" width="125" height="120"/>
+    <circle cx="40" cy="85" r="6"/>
+    <circle cx="145" cy="85" r="6"/>
+    <circle cx="40" cy="175" r="6"/>
+    <circle cx="145" cy="175" r="6"/>
+    <circle cx="92.5" cy="130" r="35"/>
+
+    <path d="M30 55 H155 M30 50 V60 M155 50 V60"/>
+    <path d="M15 70 V190 M10 70 H20 M10 190 H20"/>
+    <path d="M40 200 H145 M40 195 V205 M145 195 V205"/>
+    <path d="M170 85 V175 M165 85 H175 M165 175 H175"/>
+    <path d="M120 118 L150 106"/>
+
+    <rect x="349" y="176" width="92" height="6"/>
+    <rect x="360" y="108" width="70" height="68"/>
+    <rect x="365" y="62" width="60" height="46"/>
+    <path d="M330 62 V182 M325 62 H335 M325 182 H335"/>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6e7681">
+    <text x="92" y="44" text-anchor="middle">25.00</text>
+    <text x="12" y="134" text-anchor="middle" transform="rotate(-90 12 134)">24.00</text>
+    <text x="92" y="216" text-anchor="middle">21.00 (hole centres)</text>
+    <text x="186" y="134" text-anchor="start" transform="rotate(90 186 134)">18.00</text>
+    <text x="152" y="104" text-anchor="start">&#8960;14.00 holder</text>
+    <text x="318" y="126" text-anchor="end">23.95</text>
+    <text x="395" y="200" text-anchor="middle">1.2 PCB</text>
+    <text x="395" y="232" text-anchor="middle">side view (schematic)</text>
+    <text x="92" y="240" text-anchor="middle">top view</text>
+    <text x="12" y="18" text-anchor="start" font-size="12">SC3336 3MP Camera (B) - measured dimensions (mm)</text>
+  </g>
+</svg>
