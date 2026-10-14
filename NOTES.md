@@ -45,10 +45,10 @@ lens_f      = (sensor_active_width / 2) / tan(HFOV/2)          [1/2.8" -> 5.58 m
 
 | h (in) | HFOV needed | VFOV needed | DFOV needed | lens (1/2.8") |
 |---|---|---|---|---|
-| 26 (slung below shade) | 112.6 deg | 73.7 deg | ~118 deg | ~1.85 mm |
+| 26 (slung below shade) | 112.6 deg | 73.7 deg | ~118 deg | ~1.86 mm |
 | 31 (low end standard)  | 103.0 | 64.3 | 109.2 | 2.22 mm |
 | **34 (assumed)**       | **97.8** | **59.7** | **104.1** | **2.43 mm** |
-| 36 (high end standard) | 94.6 | 56.9 | 100.9 | 2.57 mm |
+| 36 (high end standard) | 94.6 | 56.9 | 100.9 | 2.58 mm |
 | 48 | 78.2 | 44.2 | 84.5 | 3.43 mm |
 | 55 | 70.7 | 39.0 | 76.8 | 3.93 mm |
 | 60 (ceiling) | 66.0 | 36.0 | 72.0 | 4.29 mm |
@@ -58,8 +58,8 @@ above; **HFOV is what binds** here, because the table is 2:1 and 39 in is the
 dimension that exceeds a stock lens first (compare the covered width tables below).
 
 **Escape hatch, quantified:** the stock 3.95 mm lens gives HFOV 70.4 deg, i.e.
-**1.4122 in of table covered per inch of height**. So the stock lens covers the
-78 in table at **h >= 55.2 in**, and with 10% margin at **h >= 60.9 in**.
+**1.4127 in of table covered per inch of height**. So the stock lens covers the
+78 in table at **h >= 55.2 in**, and with 10% margin at **h >= 60.7 in**.
 If the camera can sit at/above the shades instead of below them, the lens
 problem disappears entirely.
 
@@ -345,9 +345,9 @@ assumed camera height ........... 34 in
 HFOV needed @ 34 in ............. 97.8 deg
 DFOV needed @ 34 in ............. 104.1 deg (diagonal; HFOV 97.8 is the binding one)
 lens needed @ 34 in ............. ~2.43 mm on 1/2.8"
-stock lens ...................... 3.95 mm -> covers 1.4122 in per inch of height
+stock lens ...................... 3.95 mm -> covers 1.4127 in per inch of height
 stock lens covers 78 in at ...... h >= 55.2 in
-stock lens + 10% margin at ...... h >= 60.9 in
+stock lens + 10% margin at ...... h >= 60.7 in
 fisheye sweet spot .............. 2.2 mm M12 (~121 deg H, the lens's own spec - verify on arrival)
 RV1106 encode ceiling ........... 5 MP @ 30 fps (HW H.264/H.265)
 RV1106 idle power ............... 0.11 W (22 mA @ 5 V)

@@ -42,6 +42,18 @@ Several vendor FOV figures contradict their own focal lengths and sensor sizes
 (noted in NOTES.md section 3). Treat all quoted FOV as approximate and measure real
 coverage on the real table before committing to a lens.
 
+## Checking the numbers
+
+The figures above are what the hardware decision rests on, so they are checked
+rather than trusted. `test_claims.py` recomputes the field-of-view table and the
+thresholds it implies from the stated geometry and fails when any published
+figure disagrees with the arithmetic, at the precision it claims:
+
+    python3 test_claims.py
+
+Standard library only, no dependencies. It also refuses the figures that were
+superseded when the table was audited, so a wrong number cannot quietly return.
+
 ## License
 
 Licensed under the **Functional Source License, Version 1.1, MIT Future License**
