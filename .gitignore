@@ -15,3 +15,7 @@ scratch/
 
 # Local working state - deliberately NOT published
 RESUME.md
+
+# Python bytecode - test_claims.py is the repository 19s first Python
+__pycache__/
+*.py[cod]
