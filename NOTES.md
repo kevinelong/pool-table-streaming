@@ -45,13 +45,17 @@ lens_f      = (sensor_active_width / 2) / tan(HFOV/2)          [1/2.8" -> 5.58 m
 
 | h (in) | HFOV needed | VFOV needed | DFOV needed | lens (1/2.8") |
 |---|---|---|---|---|
-| 26 (slung below shade) | 113 deg | 74 deg | ~128 deg | ~1.85 mm |
-| 31 (low end standard)  | 103.0 | 64.3 | 110.6 | 2.22 mm |
-| **34 (assumed)**       | **97.8** | **59.7** | **105.5** | **2.43 mm** |
-| 36 (high end standard) | 94.6 | 56.9 | 102.4 | 2.57 mm |
-| 48 | 78.2 | 49.1 | 86.0 | 3.43 mm |
-| 55 | 70.7 | 39.0 | 78.3 | 3.93 mm |
-| 60 (ceiling) | 66.0 | 36.0 | 73.4 | 4.29 mm |
+| 26 (slung below shade) | 112.6 deg | 73.7 deg | ~118 deg | ~1.85 mm |
+| 31 (low end standard)  | 103.0 | 64.3 | 109.2 | 2.22 mm |
+| **34 (assumed)**       | **97.8** | **59.7** | **104.1** | **2.43 mm** |
+| 36 (high end standard) | 94.6 | 56.9 | 100.9 | 2.57 mm |
+| 48 | 78.2 | 44.2 | 84.5 | 3.43 mm |
+| 55 | 70.7 | 39.0 | 76.8 | 3.93 mm |
+| 60 (ceiling) | 66.0 | 36.0 | 72.0 | 4.29 mm |
+
+DFOV is the sensor-diagonal figure, computed exactly from the two tangent ratios
+above; **HFOV is what binds** here, because the table is 2:1 and 39 in is the
+dimension that exceeds a stock lens first (compare the covered width tables below).
 
 **Escape hatch, quantified:** the stock 3.95 mm lens gives HFOV 70.4 deg, i.e.
 **1.4122 in of table covered per inch of height**. So the stock lens covers the
@@ -72,7 +76,11 @@ problem disappears entirely.
 **Fisheye is the fix.** A ~2.2 mm M12 fisheye gives ~121 deg H on a
 6.4 mm-diagonal sensor -> covers ~120 in at 34 in, i.e. 154% of the table,
 leaving dewarp headroom. A 1.7-1.85 mm 180 deg lens over-covers and wastes
-pixels. Resolution cost of the wide lens: the table spans only ~65% of frame
+pixels. (The 121 deg is the *lens's own* figure, not something the rectilinear
+relation predicts: at 2.2 mm on this sensor's 5.58 mm active width the
+rectilinear formula gives only ~103 deg H, so the coverage above holds only if
+the fisheye really delivers ~121 deg - measure it on arrival, as section 9
+already requires.) Resolution cost of the wide lens: the table spans only ~65% of frame
 width, so a 2.25 in ball renders ~36 px at 1080p (vs ~55 px if the table filled
 the frame).
 
@@ -154,6 +162,22 @@ ffmpeg). Zero hardware cost.
 - Correct chain: camera -> RTSP -> **MediaMTX** -> OBS **Media Source** ->
   platform RTMP(S). Alternative input plugin: `xacnio/live-stream-source`
   (SRT/HLS/WHEP/IVS).
+- **RTSP reconnection is broken in OBS and no setting fixes it.** The Media
+  Source's reconnect (`Reconnect Delay`, default 10 s) is armed only after
+  FFmpeg's demuxer fires its *stop* callback; if the read thread instead blocks
+  on a dead/half-open socket, no callback fires, `mediaState` stays `PLAYING`,
+  and no log line or WebSocket event is emitted at all (obs-studio **#11537**,
+  open since 2024-11-19; **#12958**, open, last updated 2026-08-15 - its
+  reporter closed it with a third-party plugin, not an OBS fix). A watchdog
+  therefore cannot read OBS's own state: `GetMediaInputStatus` keeps returning
+  `PLAYING` and `MediaInputPlaybackEnded` fires only on a *clean* drop, never on
+  the silent hang. What does work, outside OBS's state machine:
+  (a) check the OBS host's TCP socket to `<camera>:554` and re-probe with an
+  RTSP `DESCRIBE`/`OPTIONS` (this separates "camera down" from "source hung"),
+  or (b) hash successive `GetSourceScreenshot` frames and flag "picture has not
+  changed" (cause-agnostic). Re-arm with `TriggerMediaInputAction`
+  `RESTART`/`STOP`, or toggle the scene item / re-apply the input settings, and
+  confirm recovery via `MediaInputPlaybackStarted`.
 
 **Resolution decision:** since Facebook caps at 1080p, **2K buys nothing for the
 primary target.** Target 1080p60 (better ball tracking on break shots) or
@@ -285,6 +309,16 @@ with native NDI/SRT into OBS.
    for rolling bars across the cloth.
 5. **Published FOV figures contradict their own focal lengths** (see section 3).
 6. Liquids/Li-ion: do not strap a battery to a hot fixture.
+7. **Tapo C325WB security (the retail route).** The three advisories the RESUME
+   lists are real - CVE-2026-105672 (unauthenticated JSON-API auth bypass, 8.7),
+   CVE-2026-105673 (unauthenticated RTSP-over-HTTP DoS, 7.1) and
+   CVE-2026-105674 (predictable media-stream pre-shared key, 8.7) - all
+   adjacent-network, **all V2 hardware only**, published 2026-10-08 and
+   **fixed in V2 firmware `V2_1.3.3 Build 260914`** (TP-Link faq/5333; V1/V1.60
+   is not listed as affected). Note 673 requires the **Camera Account feature to
+   be enabled** - exactly what the RTSP/OBS route needs - so this update is
+   mandatory, not hygiene. Update on arrival; keep the camera off untrusted
+   networks.
 
 ---
 
@@ -309,12 +343,12 @@ with native NDI/SRT into OBS.
 standard light height ........... 31-36 in above cloth (60-66 in above floor)
 assumed camera height ........... 34 in
 HFOV needed @ 34 in ............. 97.8 deg
-DFOV needed @ 34 in ............. 105.5 deg
+DFOV needed @ 34 in ............. 104.1 deg (diagonal; HFOV 97.8 is the binding one)
 lens needed @ 34 in ............. ~2.43 mm on 1/2.8"
 stock lens ...................... 3.95 mm -> covers 1.4122 in per inch of height
 stock lens covers 78 in at ...... h >= 55.2 in
 stock lens + 10% margin at ...... h >= 60.9 in
-fisheye sweet spot .............. 2.2 mm M12 (~121 deg H)
+fisheye sweet spot .............. 2.2 mm M12 (~121 deg H, the lens's own spec - verify on arrival)
 RV1106 encode ceiling ........... 5 MP @ 30 fps (HW H.264/H.265)
 RV1106 idle power ............... 0.11 W (22 mA @ 5 V)
 Facebook Live max ............... 1080p, 3-6 Mbps, keyframe 2 s, AAC required
