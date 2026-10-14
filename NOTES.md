@@ -57,6 +57,12 @@ DFOV is the sensor-diagonal figure, computed exactly from the two tangent ratios
 above; **HFOV is what binds** here, because the table is 2:1 and 39 in is the
 dimension that exceeds a stock lens first (compare the covered width tables below).
 
+That table, the thresholds it implies and the fisheye figures are recomputed from this
+geometry by `test_claims.py` in the repository root, which fails if any published
+figure stops matching the arithmetic at the precision it claims, and refuses the
+cells that were corrected in the audit of 2026-10-14. Change a number here and the
+check goes red until the geometry agrees with it.
+
 **Escape hatch, quantified:** the stock 3.95 mm lens gives HFOV 70.4 deg, i.e.
 **1.4127 in of table covered per inch of height**. So the stock lens covers the
 78 in table at **h >= 55.2 in**, and with 10% margin at **h >= 60.7 in**.

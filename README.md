@@ -26,6 +26,7 @@ Research notes on streaming a **7-foot pool table** overhead into **OBS**, and o
 | [NOTES.md](NOTES.md) | The engineering brief: FOV math, verified component specs, platform limits, BOM with prices, retail alternatives, rejected options, risks, verification plan |
 | [RESEARCH.md](RESEARCH.md) | Follow-on research: retail camera shortlist, RV1106 radio and OpenIPC, on-camera AI, dewarping, broadcast ops, commercial prior art |
 | [CONVERSATION.md](CONVERSATION.md) | The full conversation record, including the tool calls and the reasoning trail |
+| [test_claims.py](test_claims.py) | Recomputes the FOV table and its thresholds from the stated geometry and fails if any published figure disagrees — the guard on the numbers the purchase rests on |
 
 ## Status
 
