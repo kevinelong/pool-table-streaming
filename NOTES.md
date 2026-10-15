@@ -1,8 +1,121 @@
 # Pool table -> OBS wireless streaming: engineering notes
 
 Companion file: `CONVERSATION.md` (full conversation record).
-Notes dated 2026-10-10 .. 2026-10-12.
+Notes dated 2026-10-10 .. 2026-10-15.
 Machine-specific paths, usernames and tracking parameters were removed for publication.
+
+---
+
+## 0. The two open decisions (decision packet, 2026-10-15)
+
+Everything below this section is the engineering record; this section is the
+purchase decision. It is blocked on exactly two questions, both Kevin's - **the
+camera budget** and **mains power at the table** - so each is stated here with a
+recommendation and a price. Nothing here is a measurement taken on hardware, and
+no order has been placed. Recommendations are written to be overruled.
+
+Three facts decide both questions, and all three are already in this file:
+
+- the camera hangs on the fixture, so framing at the assumed **34 in** needs
+  **97.8 deg horizontal** (section 2, arithmetic re-derived in section 2a);
+- the RV1106 idles at a measured **0.11 W (22 mA at 5 V)** and streams at an
+  estimated 1.5-2.5 W (section 5);
+- a 7 ft table is **78 x 39 in** of playing surface (section 2).
+
+### (a) Budget: build in stages, or buy the problem away
+
+The BOM in section 5 totals **$199.38** (Amazon, 2026-10-11/12). That is not one
+purchase: the verification plan (section 9, step 3) deliberately buys the board
+and the sensor first, and the lens is the one part whose 121 deg spec is
+unverified. Item by item, with the money on it:
+
+| Item | Amazon | Waveshare / Luckfox direct |
+|---|---|---|
+| Luckfox Pico Ultra W - RV1106, WiFi 6, 8 GB eMMC | $62.39 | $50.99 |
+| SC3336 3MP Camera (B) - sensor + the 14 mm M12 holder | $15.99 | $8.99 |
+| **Stage 1 subtotal - buy this first** | **$78.38** | **$59.98** |
+| Commonlands 2.2 mm M12 lens (the fisheye, section 2) | $47.00 | - |
+| mount + shield (what hangs it on the fixture) | not priced | - |
+| **Stage 2 subtotal - only after stage 1 passes** | **$47.00 + mount/shield** | |
+| Voltaic V50 "always on" bank, 48 Wh (section 5) | $74.00 | - |
+| **DIY total as itemised in section 5** | **$199.38** | **$180.98** |
+
+The mount and the shield are the one unpriced line: no vendor has been
+identified for either, and neither can be specified before the camera exists. The
+direct column is the same two stage-1 parts - Pico Ultra W (sku 26790) and
+SC3336 (B) - from Waveshare's and Luckfox's own stores, $18.40 cheaper.
+
+What that money buys, against buying the problem away:
+
+| Route | Price | What it buys | What it costs you |
+|---|---|---|---|
+| Mevo Core, refurb / new | $699.99 / $949.99 | Micro Four Thirds mount, so FOV is solved by lens choice - no fisheye, no dewarping; native NDI and SRT, the only route that is direct **and** immune to OBS's RTSP reconnection bug; 6 h battery; nothing to assemble | 3.5x-4.8x the DIY total, and a lunchbox-sized camera where a light fixture is |
+| Mevo Start | ~$599.99 | 1080p, 4 h battery, RTMP | fixed lens: FOV is **not** solved |
+| Tapo C325WB | ~$60-80 | 106 deg horizontal = **90.2 in of coverage at 34 in**, the cheapest thing that covers the table at all; RTSP into a Media Source | mains only, bulky outdoor bullet, and risk 7 (`V2_1.3.3` firmware update mandatory) |
+| Reolink FE-P / FE-W | $111.99 / $110.49 | 6 MP fisheye, dewarped on-device, RTSP | 360 deg wastes the frame; PoE or WiFi |
+| Amcrest IP5M-F1180EW | $149.99 | 5 MP fisheye, RTSP | as above |
+
+**Recommendation (a): build it, but buy only stage 1 now - the board and the
+SC3336 (B), $78.38 on Amazon or $59.98 bought direct.** The premise is a camera
+that hangs on the light fixture (section 1) and the RV1106 rig is the only option
+small enough to meet it (section 6); stage 1 is about 11% of the refurbished
+Mevo Core's price and it is what converts the design's one unverified assumption
+- coverage at the real height - into a measurement. Then buy the **$47.00** lens,
+the mount and the shield only if stage 1 puts all four corner pockets in frame;
+the fisheye's 121 deg is the lens's own claim, not something the geometry
+promises.
+
+**The condition that flips it:** if the camera may be **big**, or may sit above
+the shades, buy rather than build. From 55.2 in the stock 3.95 mm lens covers the
+table, at which point a **~$70 C325WB** answers the whole question today and the
+**$699.99 refurb Mevo Core** is the only retail route whose FOV is solved by
+design.
+
+**And the free step comes before the $78.38:** tape-measure the real height
+(section 9, step 1). At 31 in the requirement rises to 103.0 deg, still inside
+the fisheye's 121 deg - it covers 2*31*tan(121/2) = **109.6 in at 31 in**, so the
+lens choice survives the measurement; but if the camera can go above the shades
+at 55.2 in or more, nothing has to be bought for the optics at all.
+
+### (b) Mains / power: what has to run at the table, and on what
+
+Two loads, and they are different problems:
+
+- **the camera** - 5 V DC, measured **0.11 W (22 mA)** idle, ~1.5-2.5 W
+  estimated while streaming (section 5);
+- **the streaming box** - the OBS PC. 45-100 W and mains, or a laptop over
+  USB-C PD.
+
+| Option | Price | Tradeoff |
+|---|---|---|
+| Mains socket at the table, 5 V supply | ~$8 (a 5 V/2 A adapter; the section 5 DC 12/24 V -> 5 V tap is $8 and is only needed when tapping a **DC** lighting run) | a cable to the table, and it must not be the fixture's own circuit if the wall switch controls it (risk 2) |
+| Voltaic V50 "always on" bank, 48 Wh | $74.00 ($89.00 for the V75, 20,100 mAh) | no cable, but Li-ion must not be strapped to a hot fixture (risk 6) |
+| PoE - Luckfox Pico Ultra PoE variant | $74.99 board + injector or PoE switch | one cable carries power and data - which is a wire, i.e. exactly what "wireless" was buying |
+
+What the measured idle draw settles:
+
+- **in energy terms it is trivial**: 48 Wh at 80% conversion is ~350 h of idle
+  and ~19 h at the 2 W streaming estimate, so bank *capacity* is not a variable -
+  the $74 V50 is already 19 h;
+- **in current terms it is the opposite**: 22 mA sits below the ~50-100 mA
+  auto-shutoff of an ordinary power bank, so a battery route *requires* an
+  "always on" bank. The 0.11 W is what makes the $74 V50 the minimum viable
+  battery rather than a convenience;
+- so any 5 V supply is sufficient for the camera, and a 5 W one has 45x headroom
+  over idle and ~2x over the streaming estimate - the camera cannot tell the $8
+  adapter from the $74 bank;
+- the **box does not follow the camera onto a battery**: 48 Wh is ~40 min at
+  60 W.
+
+**Recommendation (b): run the camera from a mains socket at the table (~$8, or
+$0 if a spare 5 V adapter is in the house), on a circuit that is not the switched
+lighting circuit.** That is both the cheapest and the only option that also keeps
+the streaming box fed. Keep the **$74** always-on bank as the answer to exactly
+one case - the fixture is on the wall switch (risk 2), or no socket is within
+reach - and note that its runtime then far exceeds a session. PoE only makes
+sense if a cable run to the fixture is acceptable, which contradicts the premise.
+
+**Spend so far: $0. Ordering either stage is Kevin's call.**
 
 ---
 
@@ -54,8 +167,13 @@ lens_f      = (sensor_active_width / 2) / tan(HFOV/2)          [1/2.8" -> 5.58 m
 | 60 (ceiling) | 66.0 | 36.0 | 72.0 | 4.29 mm |
 
 DFOV is the sensor-diagonal figure, computed exactly from the two tangent ratios
-above; **HFOV is what binds** here, because the table is 2:1 and 39 in is the
-dimension that exceeds a stock lens first (compare the covered width tables below).
+above. **HFOV is what binds**, because the needed half-angle ratio is
+39 / 19.5 = 2 (half the 78 in length over half the 39 in width) and a 16:9 frame
+gives only 16 / 9 = 1.778, so any lens wide enough horizontally is wide enough
+vertically as well. Note the two 39s: the 39 in inside `atan` is **half the
+length**, and it is the same number as the table's width only by coincidence.
+At 34 in the stock modules fail both axes, the horizontal first (an SC3336 covers
+68.6 in of the 78 in length but 38.6 in of the 39 in width).
 
 That table, the thresholds it implies and the fisheye figures are recomputed from this
 geometry by `test_claims.py` in the repository root, which fails if any published
@@ -63,7 +181,41 @@ figure stops matching the arithmetic at the precision it claims, and refuses the
 cells that were corrected in the audit of 2026-10-14. Change a number here and the
 check goes red until the geometry agrees with it.
 
-**Escape hatch, quantified:** the stock 3.95 mm lens gives HFOV 70.4 deg, i.e.
+### 2a. The arithmetic, re-derived 2026-10-15
+
+Recomputed from the formulas above, with the intermediates, so every published
+figure can be checked by hand rather than trusted:
+
+```
+table half-length ................. 78 / 2 = 39 in
+assumed camera height h ........... 34 in
+
+HFOV needed = 2 * atan(39 / h) .... 39 / 34 = 1.147059
+                                    atan(1.147059) = 48.918248 deg
+                                    HFOV = 97.836498 -> 97.8 deg
+VFOV needed = 2 * atan(19.5 / h) .. 19.5 / 34 = 0.573529
+                                    atan(0.573529) = 29.835950 deg
+                                    VFOV = 59.671900 -> 59.7 deg
+DFOV needed (sensor diagonal) ..... hypot(tan 48.918248, tan 29.835950)
+                                    = hypot(1.147059, 0.573529) = 1.282451
+                                    DFOV = 104.108857 -> 104.1 deg
+lens needed = (5.58 / 2)/tan(HFOV/2)  2.79 / 1.147059 = 2.432307 -> 2.43 mm
+
+stock 3.95 mm HFOV = 2*atan((5.58/2)/3.95)
+                                    2.79 / 3.95 = 0.706329
+                                    atan(0.706329) = 35.234670 deg
+                                    HFOV = 70.469340 -> 70.47 deg (70.5 at 1 dp)
+coverage per inch of height ....... 2 * tan(35.234670) = 2 * 0.706329 = 1.412658
+                                    -> 1.4127 in per inch of height
+h covering 78 in .................. 78 / 1.412658 = 55.215096 -> 55.2 in
+h covering 78 in + 10% margin ..... 78 * 1.1 / 1.412658 = 60.736606 -> 60.7 in
+
+playing surface ................... 7 ft table = 78 x 39 in; 39 = 78 / 2, exactly 2:1
+fisheye, if its own spec holds ..... 2 * 34 * tan(121/2) = 2 * 34 * 1.767494 = 120.19
+                                    -> 120 in, 154% of the 78 in
+```
+
+**Escape hatch, quantified:** the stock 3.95 mm lens gives HFOV 70.47 deg, i.e.
 **1.4127 in of table covered per inch of height**. So the stock lens covers the
 78 in table at **h >= 55.2 in**, and with 10% margin at **h >= 60.7 in**.
 If the camera can sit at/above the shades instead of below them, the lens
@@ -165,8 +317,14 @@ ffmpeg). Zero hardware cost.
 - WHIP in OBS is **output only** - it cannot be used as an input.
 - Do **not** use OBS as an SRT *listener*: it cannot recreate the socket on
   reconnect while an output is active (obs-studio issue #13506).
-- Correct chain: camera -> RTSP -> **MediaMTX** -> OBS **Media Source** ->
-  platform RTMP(S). Alternative input plugin: `xacnio/live-stream-source`
+- **The chain as decided: camera -> RTSP -> OBS *Media Source* -> platform
+  RTMP(S), with no intermediary.** "Direct to OBS" is the project's top criterion
+  (section 1), so OBS's own RTSP client is the critical path and its reconnection
+  bug (below) is the accepted cost, paid with a watchdog. **MediaMTX** in the
+  middle is the fix for that bug - it reconnects, and OBS then sees a stable
+  local feed - but it adds a hop and a service to run; it was **offered and
+  rejected** on 2026-10-12 and stays the fallback if the watchdog cannot hold the
+  stream. Alternative input plugin: `xacnio/live-stream-source`
   (SRT/HLS/WHEP/IVS).
 - **RTSP reconnection is broken in OBS and no setting fixes it.** The Media
   Source's reconnect (`Reconnect Delay`, default 10 s) is armed only after
@@ -193,7 +351,8 @@ primary target.** Target 1080p60 (better ball tracking on break shots) or
 
 ## 5. Recommended build (DIY)
 
-Architecture: `SC3336 -> RV1106 HW H.264 -> RTSP -> MediaMTX -> OBS Media Source -> FB/YT`
+Architecture: `SC3336 -> RV1106 HW H.264 -> RTSP -> OBS Media Source -> FB/YT`
+(direct, no intermediary - see section 4; MediaMTX is the documented fallback)
 
 ### Amazon, verified prices on 2026-10-11/12
 
@@ -234,17 +393,27 @@ Other Amazon variants to avoid confusing: B0DB23B79S $91.99, B0D6G7Z2BQ $74.99
 ### Power budget
 | State | Draw |
 |---|---|
-| Idle | 0.11 W (measured) |
+| Idle | 0.11 W (measured: 22 mA @ 5 V) |
 | Streaming (WiFi + HW encode) | ~1.5-2.5 W (estimate) |
 
-| Bank | Runtime @ 2 W |
-|---|---|
-| 10,000 mAh (~37 Wh) | ~12 h |
-| 13,400 mAh (V50, 48 Wh) | ~19 h |
-| 20,000 mAh (~74 Wh) | ~30 h |
+Runtime at a single stated conversion assumption (80%, i.e. 20% lost in the
+bank and the regulator), so the rows are comparable:
+
+| Bank | Usable @ 80% | At 0.11 W idle | At 2 W streaming |
+|---|---|---|---|
+| 10,000 mAh (~37 Wh) | ~30 Wh | ~270 h | ~15 h |
+| 13,400 mAh (V50, 48 Wh) | ~38 Wh | ~350 h | ~19 h |
+| 20,000 mAh (~74 Wh) | ~59 Wh | ~540 h | ~30 h |
+
+The 2 W column is an estimate of a load that has not been measured; the 10,000 mAh
+row previously read 12 h, which silently assumed a 65% conversion while its
+siblings assumed 80% - one assumption is now stated for all three. Treat the whole
+table as a planning estimate and measure the real draw when the board arrives.
 
 **Must be an "always on" bank:** most power banks auto-shutoff below ~50-100 mA,
-and 0.11 W idle is far below that.
+and 0.11 W idle is far below that - see section 0(b) for why that, and not
+capacity, is what picks the $74 V50. The streaming PC never runs on these numbers:
+48 Wh is ~40 min at 60 W, so the OBS box stays on mains.
 
 ---
 
@@ -315,10 +484,10 @@ with native NDI/SRT into OBS.
    for rolling bars across the cloth.
 5. **Published FOV figures contradict their own focal lengths** (see section 3).
 6. Liquids/Li-ion: do not strap a battery to a hot fixture.
-7. **Tapo C325WB security (the retail route).** The three advisories the RESUME
-   lists are real - CVE-2026-105672 (unauthenticated JSON-API auth bypass, 8.7),
-   CVE-2026-105673 (unauthenticated RTSP-over-HTTP DoS, 7.1) and
-   CVE-2026-105674 (predictable media-stream pre-shared key, 8.7) - all
+7. **Tapo C325WB security (the retail route).** The three advisories TP-Link
+   published on 2026-10-08 are real - CVE-2026-105672 (unauthenticated JSON-API
+   auth bypass, 8.7), CVE-2026-105673 (unauthenticated RTSP-over-HTTP DoS, 7.1)
+   and CVE-2026-105674 (predictable media-stream pre-shared key, 8.7) - all
    adjacent-network, **all V2 hardware only**, published 2026-10-08 and
    **fixed in V2 firmware `V2_1.3.3 Build 260914`** (TP-Link faq/5333; V1/V1.60
    is not listed as affected). Note 673 requires the **Camera Account feature to
@@ -355,12 +524,18 @@ stock lens ...................... 3.95 mm -> covers 1.4127 in per inch of height
 stock lens covers 78 in at ...... h >= 55.2 in
 stock lens + 10% margin at ...... h >= 60.7 in
 fisheye sweet spot .............. 2.2 mm M12 (~121 deg H, the lens's own spec - verify on arrival)
+stock lens HFOV ................. 70.47 deg
 RV1106 encode ceiling ........... 5 MP @ 30 fps (HW H.264/H.265)
-RV1106 idle power ............... 0.11 W (22 mA @ 5 V)
+RV1106 idle power ............... 0.11 W (22 mA @ 5 V, measured)
 Facebook Live max ............... 1080p, 3-6 Mbps, keyframe 2 s, AAC required
 YouTube Live max ................ up to 4K60
-DIY build total ................. $199.38 (Amazon, 2026-10-11/12)
-retail turnkey .................. $699-950 (Mevo Core)
+DIY stage 1 (board + SC3336) .... $78.38 Amazon / $59.98 direct
+DIY total (as itemised) ......... $199.38 Amazon / $180.98 direct
+DIY total fed by mains .......... $125.38 Amazon + ~$8 supply (no battery)
+48 Wh "always on" bank .......... ~350 h idle, ~19 h at 2 W (80% conversion)
+mains 5 V supply ................ any 5 W supply is ample; ~45x the idle draw
+Tapo C325WB @ 34 in ............. 90.2 in covered (106 deg horizontal)
+retail turnkey .................. $699.99 refurb / $949.99 new (Mevo Core)
 ```
 
 ## 11. Key source links

@@ -177,6 +177,126 @@ assert(close(103, rectilinear_hfov(FISHEYE_F_MM), 0)), \
     'the rectilinear comparison moved: %.2f deg' % rectilinear_hfov(FISHEYE_F_MM)
 assert('~103 deg H' in NOTES), \
     'NOTES.md no longer says what a rectilinear lens of that focal length would give'
+assert(close(109.6, 2 * 31 * math.tan(math.radians(FISHEYE_HFOV / 2)), 1)), \
+    'the fisheye covers %.1f in at 31 in' % (2 * 31 * math.tan(math.radians(FISHEYE_HFOV / 2)))
+assert('109.6 in at 31 in' in NOTES), \
+    'NOTES.md no longer states the fisheye coverage at the low end of the light heights'
 
-print('claims checked: %d table rows, the 34 in threshold, %d threshold statements '
-      'and the fisheye spec' % (len(ROWS), len(thresholds)))
+# 6. The decision packet (NOTES.md section 0) carries its own arithmetic: the
+#    staged subtotals, the two totals, the mains variant, and the power figures
+#    that pick the bank. Same treatment: recompute, then compare with what is
+#    published, so a price or a runtime cannot drift quietly.
+def boms():
+    """The priced rows of the section 5 BOM, in order."""
+    prices = []
+    for line in NOTES.splitlines():
+        if not line.startswith('|'):
+            continue
+        cells = [c.strip() for c in line.strip('|').split('|')]
+        if len(cells) == 4 and re.match(r'^\d+$', cells[0]):
+            price = re.search(r'\$([\d.]+)', cells[3])
+            if price:
+                prices.append(float(price.group(1)))
+    return prices
+
+
+BOM = boms()
+assert(len(BOM) == 4), 'section 5 should list four priced BOM items, found %d' % len(BOM)
+BOARD, CAMERA, LENS_PRICE, BANK = BOM
+
+# The direct-store prices the packet's "direct" column is built from must be in
+# the section 5 source table, so the column is not invented in section 0.
+SPARES = []
+for line in NOTES.splitlines():
+    if not line.startswith('|'):
+        continue
+    cells = [c.strip() for c in line.strip('|').split('|')]
+    if len(cells) == 3 and 'direct' in cells[1]:
+        for price in re.findall(r'\$([\d.]+)', cells[2]):
+            SPARES.append(float(price))
+for needed in (50.99, 8.99):
+    assert(needed in SPARES), \
+        'the direct price $%.2f is not in the section 5 source list %s' % (needed, SPARES)
+BOARD_DIRECT, CAMERA_DIRECT = 50.99, 8.99
+
+STAGE1_AMAZON = BOARD + CAMERA
+STAGE1_DIRECT = BOARD_DIRECT + CAMERA_DIRECT
+assert(close(78.38, STAGE1_AMAZON, 2)), 'stage 1 (Amazon) is $%.2f' % STAGE1_AMAZON
+assert(close(59.98, STAGE1_DIRECT, 2)), 'stage 1 (direct) is $%.2f' % STAGE1_DIRECT
+assert(close(199.38, sum(BOM), 2)), 'the itemised DIY total is $%.2f' % sum(BOM)
+assert(close(180.98, STAGE1_DIRECT + LENS_PRICE + BANK, 2)), \
+    'the direct-priced DIY total is $%.2f' % (STAGE1_DIRECT + LENS_PRICE + BANK)
+assert(close(125.38, STAGE1_AMAZON + LENS_PRICE, 2)), \
+    'the mains-fed DIY total is $%.2f' % (STAGE1_AMAZON + LENS_PRICE)
+for published in ('$78.38', '$59.98', '$199.38', '$180.98', '$125.38', '~$70'):
+    assert(published in NOTES), \
+        'the decision packet no longer publishes %s' % published
+
+# The one comparison the packet draws between build and buy, checked from the
+# figures rather than asserted.
+Mevo = re.search(r'about (\d+)% of the refurbished', NOTES)
+assert(Mevo), 'the packet no longer compares stage 1 with the refurbished Mevo Core'
+assert(close(float(Mevo.group(1)), 100 * STAGE1_AMAZON / 699.99, 0)), \
+    'stage 1 is %.1f%% of the refurbished Mevo Core' % (100 * STAGE1_AMAZON / 699.99)
+
+# Power: the measured idle draw, what it makes sufficient, and the one route the
+# packet rejects on the strength of it.
+IDLE_W = 5.0 * 22.0 / 1000.0
+assert(close(0.11, IDLE_W, 2)), 'the idle draw is %.4f W' % IDLE_W
+idle = matching(r'([\d.]+) W \((?:[^)\n]{0,20})?22 mA')
+assert(len(idle) >= 3), \
+    'the packet states the idle draw in section 0, 5 and 10, found %d' % len(idle)
+for text in idle:
+    assert(close(float(text), IDLE_W, decimals(text))), \
+        'NOTES.md states %s W for 22 mA at 5 V, which is %.2f W' % (text, IDLE_W)
+headroom = matching(r'(\d+)x\s+(?:headroom\s+over\s+idle|the\s+idle\s+draw)')
+assert(len(headroom) == 2), \
+    'the packet states the mains headroom twice (section 0 and section 10), found %d' % len(headroom)
+for text in headroom:
+    assert(close(float(text), 5.0 / IDLE_W, decimals(text))), \
+        'NOTES.md states %sx the idle draw; a 5 W supply is %.1fx' % (text, 5.0 / IDLE_W)
+# The retail route's one quantitative claim: its published FOV must imply its
+# published coverage at 34 in, at the precision it claims.
+m = re.search(r'(\d+(?:\.\d+)?) deg horizontal = \*\*([\d.]+) in of coverage at 34 in',
+              NOTES)
+assert(m), 'the packet no longer states the C325WB FOV and its coverage together'
+TAPO_HFOV, TAPO_COVER = float(m.group(1)), float(m.group(2))
+assert(close(TAPO_COVER, 2 * 34 * math.tan(math.radians(TAPO_HFOV / 2)),
+             decimals(m.group(2)))), \
+    'the C325WB covers %.2f in at 34 in, not %.1f' % (
+        2 * 34 * math.tan(math.radians(TAPO_HFOV / 2)), TAPO_COVER)
+
+
+BANKS = re.findall(
+    r'\| ([\d,]+) mAh \((?:[^|\n]*?)(\d+) Wh\) \| ~([\d.]+) Wh \| ~([\d.]+) h \| ~([\d.]+) h \|',
+    NOTES)
+assert(len(BANKS) == 3), \
+    'the power table should carry three bank rows, found %d' % len(BANKS)
+for mAh, capacity, usable, idle_hours, stream_hours in BANKS:
+    assert(close(float(usable), float(capacity) * 0.8, 0)), \
+        'the %s mAh row shows %s Wh usable; 80%% of %s Wh is %.1f Wh' % (
+            mAh, usable, capacity, float(capacity) * 0.8)
+
+
+def bank_hours(wh, load):
+    return wh * 0.8 / load
+
+
+for published, computed in (('~270 h', bank_hours(37, IDLE_W)),
+                            ('~350 h', bank_hours(48, IDLE_W)),
+                            ('~540 h', bank_hours(74, IDLE_W)),
+                            ('~15 h', bank_hours(37, 2.0)),
+                            ('~19 h', bank_hours(48, 2.0)),
+                            ('~30 h', bank_hours(74, 2.0))):
+    assert(published in NOTES), 'NOTES.md no longer publishes %s' % published
+    assert(abs(float(published.strip('~ h')) - computed) <= 5.0), \
+        'NOTES.md publishes %s where the 80%% conversion gives %.1f h' % (published, computed)
+assert('~12 h' not in NOTES), \
+    'the 10,000 mAh row is back to the 65%-conversion figure (~12 h)'
+assert('$699.99' in NOTES and '$949.99' in NOTES), \
+    'the Mevo Core prices are missing from the packet'
+
+print('claims checked: %d table rows, the 34 in threshold, %d threshold statements, '
+      'the fisheye spec, and the decision packet (%d priced items, $%.2f + $%.2f '
+      'staged, %.2f W idle)' % (len(ROWS), len(thresholds), len(BOM),
+                                STAGE1_AMAZON, STAGE1_DIRECT, IDLE_W))

@@ -18,6 +18,9 @@ Research notes on streaming a **7-foot pool table** overhead into **OBS**, and o
   **Rockchip RV1106** board (~1 W, hardware H.264, MIPI CSI, WiFi). No microcontroller
   can do this: the ESP32 line tops out at 1080p, and the ESP32-C5 has no video path
   at all.
+- **What is left is two purchase decisions, not engineering** - the camera budget
+  and mains power at the table. Both are costed, with a recommendation, in
+  [NOTES.md](NOTES.md) section 0.
 
 ## Contents
 
@@ -30,12 +33,34 @@ Research notes on streaming a **7-foot pool table** overhead into **OBS**, and o
 
 ## Status
 
-Research and specification only. **No hardware purchased.** The cheapest decisive
-next step is now a **~$70 Tapo C325WB** (106 deg horizontal) aimed down from 34 in
-and pulled into OBS over RTSP - it answers the coverage question with no assembly
-risk and no unverified lens mount. The DIY board + camera build remains the option
-if the camera must be small enough to hang on the light fixture. Details in
-[RESEARCH.md](RESEARCH.md) section 1.
+Research and specification only. **No hardware purchased, nothing ordered.** Two
+decisions pick the route, and both are stated in [NOTES.md](NOTES.md) section 0
+with a cost and a recommendation:
+
+- **Budget: build, buy only stage 1 now.** The DIY build is **$199.38** as
+  itemised, but it is bought in two stages: the board plus the SC3336 camera
+  first - **$78.38** on Amazon, or **$59.98** for the same two parts direct from
+  the vendors - and the **$47.00** fisheye lens, the mount and the shield only
+  after stage 1 shows the real table fits from the real height. That first stage
+  is the cheapest way to test the one unverified assumption in the design. The
+  turnkey alternative is the **$699.99 refurb / $949.99 new Mevo Core**, 3.5x-4.8x
+  as much, and worth it only if the camera may be big or may sit above the shades.
+- **Power: mains at the table, about $8.** The RV1106 idles at a measured
+  **0.11 W (22 mA at 5 V)**, so any 5 V supply is ample - and a 5 W one has 45x
+  headroom over idle. A battery has to be an "always on" bank (**$74**), because
+  22 mA sits below an ordinary bank's auto-shutoff; it is the answer only if the
+  fixture is on the wall switch or no socket is in reach. The streaming PC stays
+  on mains either way.
+
+The cheapest single decisive test of the optics is still a **~$70 Tapo C325WB**
+(106 deg horizontal, 90.2 in of coverage at 34 in) aimed down from 34 in and
+pulled into OBS over RTSP - no assembly risk and no unverified lens mount. Buy it
+with its firmware requirement in mind: the V2 advisories
+(CVE-2026-105672/673/674) are fixed in `V2_1.3.3 Build 260914`, and the RTSP route
+needs the Camera Account feature that one of them targets, so the update is
+mandatory rather than hygiene (NOTES.md section 8, risk 7). The DIY board + camera
+build remains the option if the camera must be small enough to hang on the light
+fixture. Details in [RESEARCH.md](RESEARCH.md) section 1.
 
 ## Caveat on the numbers
 
@@ -47,13 +72,17 @@ coverage on the real table before committing to a lens.
 
 The figures above are what the hardware decision rests on, so they are checked
 rather than trusted. `test_claims.py` recomputes the field-of-view table and the
-thresholds it implies from the stated geometry and fails when any published
-figure disagrees with the arithmetic, at the precision it claims:
+thresholds it implies from the stated geometry, and the decision packet's own
+arithmetic - the staged subtotals and totals against the priced BOM, the C325WB's
+coverage at 34 in, and the power numbers that pick the bank - and fails when any
+published figure disagrees, at the precision it claims:
 
     python3 test_claims.py
 
 Standard library only, no dependencies. It also refuses the figures that were
-superseded when the table was audited, so a wrong number cannot quietly return.
+superseded (the corrected FOV cells, the pre-audit coverage per inch, and the bank
+runtime that assumed a different conversion from its siblings), so a wrong number
+cannot quietly return.
 
 ## License
 
