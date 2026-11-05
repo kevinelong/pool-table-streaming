@@ -19,3 +19,25 @@ RESUME.md
 # Python bytecode - test_claims.py is the first Python in this repository
 __pycache__/
 *.py[cod]
+
+# --- dependency stores, caches and build output (added 2026-11-05) ---
+node_modules/
+bower_components/
+.deno/
+.venv/
+venv/
+virtualenv/
+site-packages/
+.pytest_cache/
+.mypy_cache/
+.tox/
+.gradle/
+.next/
+.nuxt/
+.parcel-cache/
+target/
+dist/
+build/
+Pods/
+DerivedData/
+.cache/
